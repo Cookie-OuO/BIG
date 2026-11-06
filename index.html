@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>肉球日常｜寵物鮮食適配分析</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f7f2;--surface:#fff;--ink:#263043;--muted:#5d6779;--sage:#dbe9d6;--butter:#f8e6a6;--accent:#e9737f;--accent-ink:#fff;--line:#d9e1d5;--ok:#3f8a5b;--warn:#a8420c;--warnbg:#fde6d3;color-scheme:light;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#171d1a;--surface:#212a26;--ink:#eaf0e8;--muted:#a5b2a8;--sage:#2d3f33;--butter:#4a4222;--accent:#f08a94;--accent-ink:#2a1216;--line:#34423a;--ok:#78c796;--warn:#ffb98a;--warnbg:#4a2c1a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#171d1a;--surface:#212a26;--ink:#eaf0e8;--muted:#a5b2a8;--sage:#2d3f33;--butter:#4a4222;--accent:#f08a94;--accent-ink:#2a1216;--line:#34423a;--ok:#78c796;--warn:#ffb98a;--warnbg:#4a2c1a;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.7 "Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;overflow-x:hidden}
+h1,h2,h3{line-height:1.3;margin:0}h2{font-size:clamp(1.5rem,4vw,2rem);font-weight:900}
+button{font:inherit;cursor:pointer;color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.wrap{max-width:1080px;margin:0 auto;padding:0 18px}
+section{padding:48px 0}
+.btn{border:0;border-radius:99px;padding:10px 22px;background:var(--accent);color:var(--accent-ink);font-weight:700}
+.btn.alt{background:var(--sage);color:var(--ink)}
+header{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+header .wrap{display:flex;align-items:center;gap:14px;min-height:60px;flex-wrap:wrap}
+.logo{font-weight:900;font-size:1.2rem;margin-right:auto}
+nav a{color:var(--ink);text-decoration:none;margin:0 6px;font-size:.95rem}
+.mm{position:absolute;left:0;right:0;top:100%;background:var(--surface);border-bottom:1px solid var(--line);display:none;padding:18px 0}
+.mm.open{display:block}
+.mm .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.mm h3{font-size:.95rem;margin-bottom:6px;color:var(--muted)}
+.chip{border:1px solid var(--line);background:var(--bg);border-radius:99px;padding:3px 14px;margin:3px 4px 3px 0;font-size:.9rem}
+.chip.on{background:var(--ink);color:var(--bg)}
+.hero{background:var(--sage);padding:44px 0 40px}
+.hero .wrap{display:grid;gap:28px;grid-template-columns:1.2fr 1fr;align-items:center}
+.hero h1{font-size:clamp(2rem,6vw,3.3rem);font-weight:900;letter-spacing:.02em}
+.hero p{max-width:30em;color:var(--muted)}
+.stage{aspect-ratio:4/3;border-radius:36px 36px 120px 36px;background:linear-gradient(135deg,var(--butter),var(--surface));display:grid;place-items:center;font-size:clamp(5rem,16vw,8rem);position:relative}
+.stage span{position:absolute;bottom:14px;left:18px;font-size:.85rem;background:var(--surface);border-radius:99px;padding:2px 14px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px}
+.analyzer{display:grid;gap:22px;grid-template-columns:1fr 1fr}
+.f{display:grid;gap:14px}
+label.l{font-weight:700;font-size:.92rem;display:block;margin-bottom:4px}
+input[type=number],select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.row label{display:flex;align-items:center;gap:6px;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px 14px;font-size:.92rem}
+.kcal{font-size:2.4rem;font-weight:900;line-height:1.1}
+.rec{border-top:1px dashed var(--line);padding:14px 0}
+.rec:first-of-type{border-top:0}
+.trialBar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:14px 16px;border-radius:16px;background:var(--butter);margin:12px 0}.trialBar>div{min-width:0;flex:1 1 220px}.trialBar .row{flex:0 1 auto}
+.stk{display:inline-block;border-radius:99px;padding:0 10px;font-size:.82rem;font-weight:700;margin-left:4px}.stk.low{background:var(--warnbg);color:var(--warn)}.stk.out{background:var(--line);color:var(--muted)}.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.pill{display:inline-block;background:var(--butter);border-radius:99px;padding:0 10px;font-size:.82rem;margin:2px 4px 2px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px;margin-top:18px}
+.p{display:flex;flex-direction:column;gap:6px}
+.tile{height:110px;border-radius:16px;display:grid;place-items:center;font-size:3rem;background:var(--sage)}
+.price{font-weight:900;font-size:1.1rem}
+.meta{color:var(--muted);font-size:.88rem}
+.tabs{display:flex;gap:8px;margin:14px 0}
+.tabs button{border:0;border-radius:99px;padding:6px 18px;background:var(--bg)}
+.tabs button[aria-selected=true]{background:var(--ink);color:var(--bg)}
+.bar{height:12px;border-radius:99px;background:var(--bg);overflow:hidden;margin:4px 0 12px}
+.bar i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.reviews{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:18px}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(400px,100%);background:var(--surface);z-index:40;transform:translateX(105%);transition:transform .25s;padding:calc(env(safe-area-inset-top,0px) + 18px) 18px calc(env(safe-area-inset-bottom,0px) + 18px);overflow:auto;box-shadow:-8px 0 30px rgba(0,0,0,.15)}
+.drawer.open{transform:none}
+.item{display:flex;gap:10px;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding:10px 0;font-size:.92rem}
+.q button{border:1px solid var(--line);background:var(--bg);border-radius:8px;width:26px}
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:15;background:var(--surface);border-top:1px solid var(--line);padding:10px 18px calc(env(safe-area-inset-bottom,0px) + 10px);display:none;gap:12px;align-items:center}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 20px;border-radius:99px;z-index:50;opacity:0;pointer-events:none;transition:opacity .2s}
+.toast.show{opacity:1}
+footer{padding:30px 0 90px;color:var(--muted);font-size:.85rem}
+header{background:color-mix(in srgb,var(--surface) 88%,transparent);backdrop-filter:blur(10px)}
+.logo{display:flex;align-items:center;gap:8px;font-family:"Noto Serif TC",serif;font-weight:900;font-size:1.3rem;letter-spacing:.06em}
+.logo b{display:grid;place-items:center;width:34px;height:34px;border-radius:50% 50% 50% 14px;background:var(--accent);font-size:1rem}
+h1,h2{font-family:"Noto Serif TC","Noto Sans TC",serif}
+section{padding:64px 0}
+.hero{background:var(--sage) radial-gradient(circle at 1px 1px,color-mix(in srgb,var(--ink) 12%,transparent) 1.2px,transparent 0) 0 0/20px 20px;padding:56px 0 76px;border-radius:0 0 48px 48px}
+.hero h1{line-height:1.25}
+.stage{aspect-ratio:1;width:100%;max-width:400px;justify-self:center;background:radial-gradient(circle at 50% 40%,var(--surface),var(--butter));border-radius:60% 40% 55% 45%/50% 55% 45% 50%;box-shadow:0 24px 50px -24px rgba(38,48,67,.45)}
+.stage svg{width:80%;height:auto}
+.stage span{left:50%;bottom:6%;transform:translateX(-50%);white-space:nowrap}
+.btn{box-shadow:0 8px 18px -10px var(--accent);transition:transform .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.alt{box-shadow:none}
+.card{box-shadow:0 16px 36px -24px rgba(38,48,67,.5)}
+.p{transition:transform .2s}.p:hover{transform:translateY(-4px)}
+.tile{height:130px;font-size:3.4rem;border-radius:18px 18px 44px 18px}
+.grid .p:nth-child(4n+2) .tile{background:var(--butter)}
+.grid .p:nth-child(4n+3) .tile{background:color-mix(in srgb,var(--accent) 28%,var(--surface))}
+.grid .p:nth-child(4n+4) .tile{background:color-mix(in srgb,#8cb8e0 35%,var(--surface))}
+.trust{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin-top:-38px;position:relative;z-index:2}
+.trust div{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:12px 16px;display:flex;gap:12px;align-items:center;box-shadow:0 14px 30px -22px rgba(38,48,67,.5)}
+.trust span{font-size:1.7rem}.trust b{display:block;line-height:1.3}.trust small{color:var(--muted)}
+.kcal{color:var(--accent);font-family:"Noto Serif TC",serif}
+.tabs{background:var(--bg);border-radius:99px;padding:4px;display:inline-flex}.tabs button{background:transparent}
+.reviews .card{border-radius:24px 24px 24px 4px}
+.reviews .card:nth-child(2){border-radius:24px 24px 4px 24px;background:var(--butter)}
+.drawer{border-radius:24px 0 0 24px}
+.mm{box-shadow:0 20px 30px -24px rgba(0,0,0,.4)}
+footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30px}
+.cf{fill:#f6c79b}.cs{fill:#e9a56b}.cp{fill:#f4a3ac}.ci{fill:#263043}.cb{fill:var(--accent)}.cl{stroke:#263043;stroke-width:2.5;stroke-linecap:round;fill:none}
+.modal{position:fixed;inset:0;z-index:60;background:rgba(20,28,24,.55);display:grid;place-items:center;padding:18px}.modal[hidden],#admin[hidden]{display:none}
+.modal .box{background:var(--surface);border-radius:24px;padding:24px;width:min(460px,100%);max-height:90vh;overflow:auto}
+.paySum{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;border-radius:16px;background:var(--bg);border:1px solid var(--line)}.payAmt{font-size:1.5rem;font-weight:800;color:var(--accent)}
+.qrBox{display:grid;justify-items:center;gap:8px;padding:16px;border-radius:16px;background:var(--bg);border:1px solid var(--line)}.qrBox svg{width:168px;height:168px;background:#fff;padding:8px;border-radius:12px}.qrBox [hidden]{display:none}
+.g{display:grid;gap:12px}.g[hidden]{display:none}
+.modal input,.modal select{width:100%;padding:9px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}
+.kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:18px 0}
+.charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.hb{display:grid;grid-template-columns:104px 1fr auto;gap:8px;align-items:center;font-size:.88rem}.hb .bar{margin:0}
+.tw{overflow-x:auto;margin-top:16px}table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:560px}th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+.pphoto{width:100%;height:100%;object-fit:cover;border-radius:14px;display:block}.stage .pphoto{height:auto;aspect-ratio:1;border-radius:14px}.mimg{display:flex;align-items:center;gap:6px}.mimg img{width:36px;height:36px;object-fit:cover;border-radius:8px;border:1px solid var(--line)}.mimg input{display:none}.mimg label{cursor:pointer;font-size:.8rem;padding:4px 10px;border-radius:99px;background:var(--sage);color:var(--ink);white-space:nowrap}
+.tile{height:150px}.tile svg{width:100%;height:100%;padding:4px}
+.fi{padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}.g textarea{width:100%}
+@media(max-width:760px){.hero .wrap,.analyzer{grid-template-columns:1fr}.sticky{display:flex}nav{display:none}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+/* ===== ABC 分析 ===== */
+.abcCtl{display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;margin:12px 0}
+.abcCtl label{display:flex;align-items:center;gap:6px;font-size:.88rem}
+.abcCtl .fi{padding:4px 8px;width:62px}
+.seg{display:inline-flex;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:3px}
+.seg button{border:0;background:transparent;border-radius:99px;padding:2px 14px;font-size:.88rem}
+.seg button.on{background:var(--ink);color:var(--bg)}
+.abcSum{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:12px 0}
+.abcSum>div{border:1px solid var(--line);border-radius:16px;padding:12px 14px;background:var(--bg)}
+.abc{display:inline-block;min-width:26px;text-align:center;border-radius:99px;font-weight:800;font-size:.8rem;padding:0 9px;color:#fff;line-height:1.5}
+.abc.A{background:#c43c4a}.abc.B{background:#a8680a}.abc.C{background:#5a6a80}
+.abBarA{fill:#c43c4a}.abBarB{fill:#c98a1b}.abBarC{fill:#7b8aa0}
+.abT{fill:var(--muted);font-size:10px}.abL{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+.abcWarn{color:var(--warn);font-weight:700;margin:6px 0}
+/* ===== AI 顧問 ===== */
+.aiFab{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 18px);z-index:44;padding:12px 20px;box-shadow:0 12px 28px -10px rgba(0,0,0,.45)}
+.aiFab[hidden],.aiBox[hidden]{display:none}
+.aiBox{position:fixed;right:16px;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);width:min(410px,calc(100% - 32px));height:min(680px,calc(100dvh - env(safe-area-inset-top,0px) - 40px));z-index:45;background:var(--surface);border:1px solid var(--line);border-radius:24px;box-shadow:0 24px 60px -20px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden}
+.aiHd{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;background:var(--sage);border-bottom:1px solid var(--line)}
+.aiLog{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;overscroll-behavior:contain}
+.aiM{max-width:88%;padding:9px 13px;border-radius:18px;font-size:.93rem;line-height:1.6;overflow-wrap:anywhere}
+.aiM.u{align-self:flex-end;background:var(--accent);color:var(--accent-ink);border-bottom-right-radius:5px}
+.aiM.a{align-self:flex-start;background:var(--bg);border:1px solid var(--line);border-bottom-left-radius:5px}
+.aiP{display:flex;gap:10px;align-items:center;margin-top:8px;padding:8px;border-radius:14px;background:var(--surface);border:1px solid var(--line)}
+.aiT{width:52px;height:52px;flex:none;border-radius:12px;background:var(--sage);overflow:hidden}
+.aiB{display:grid;gap:4px}.aiB .btn{padding:3px 12px;font-size:.82rem}
+.aiBar{display:flex;gap:2px 0;flex-wrap:wrap;padding:6px 12px 0;border-top:1px solid var(--line)}
+.aiIn{display:flex;gap:8px;align-items:flex-end;padding:8px 12px}
+.aiIn textarea{flex:1;resize:none;max-height:96px;padding:9px 12px;border-radius:16px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:.95rem}
+.aiFoot{margin:0;padding:0 14px calc(env(safe-area-inset-bottom,0px) + 8px);font-size:.75rem}
+@media(max-width:760px){.aiFab{bottom:calc(env(safe-area-inset-bottom,0px) + 86px)}.aiBox{left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);width:auto;height:calc(100dvh - env(safe-area-inset-top,0px) - 24px)}}
+</style>
+</head>
+<body>
+<header>
+ <div class="wrap">
+  <div class="logo"><b>🐾</b>肉球日常</div>
+  <nav><a href="#analyze">毛孩適配分析</a><a href="#shop">商品</a><a href="#detail">營養資料</a><a href="#proof">買家秀</a><a href="#admin" id="admLink" hidden>賣家後台</a></nav>
+  <button class="chip" id="mmBtn" aria-expanded="false">商品分類 ▾</button>
+  <button class="chip" id="memBtn">登入／註冊</button><button class="btn" id="cartBtn">購物車 <span id="cnt">0</span></button>
+ </div>
+ <div class="mm" id="mm"><div class="wrap cols">
+  <div><h3>依寵物</h3><button class="chip" data-sp="cat">🐱 貓</button><button class="chip" data-sp="dog">🐶 狗</button><button class="chip" data-sp="rabbit">🐰 兔</button><button class="chip" data-sp="guinea">🐁 天竺鼠</button><button class="chip" data-sp="hamster">🐹 倉鼠</button><button class="chip" data-sp="bird">🦜 鳥</button></div>
+  <div><h3>依年齡</h3><button class="chip" data-f="age:kitten">幼年</button><button class="chip" data-f="age:adult">成年</button><button class="chip" data-f="age:senior">高齡</button></div>
+  <div><h3>依肉種</h3><button class="chip" data-f="meat:雞肉">雞肉</button><button class="chip" data-f="meat:鮭魚">鮭魚</button><button class="chip" data-f="meat:鴨肉">鴨肉</button><button class="chip" data-f="meat:火雞">火雞</button><button class="chip" data-f="meat:牛肉">牛肉</button><button class="chip" data-f="meat:羊肉">羊肉</button></div>
+  <div><h3>依特殊需求</h3><button class="chip" data-f="tag:urinary">泌尿保健</button><button class="chip" data-f="tag:skin">皮毛亮澤</button><button class="chip" data-f="tag:digest">腸胃敏感</button><button class="chip" data-f="tag:joint">關節保健</button><button class="chip" data-f="tag:light">體重管理</button><button class="chip" data-f="tag:picky">挑嘴適口</button><button class="chip" data-f="tag:dental">潔牙護齦</button><button class="chip" data-f="tag:fiber">高纖護腸</button></div>
+ </div></div>
+</header>
+
+<div class="hero"><div class="wrap">
+ <div>
+  <h1>專為挑嘴毛孩設計的天然原型鮮食</h1>
+  <p>手作質感、透明營養數據。貓、狗、兔與小動物都適用。先算出毛孩每天需要的熱量或飼料量，再挑出最適合牠的產品。</p>
+  <p><button class="btn" onclick="location.hash='#analyze'">30 秒分析我家毛孩</button></p>
+ </div>
+ <div class="stage" aria-hidden="true"><svg viewBox="0 0 240 215"><polygon class="cs" points="66,76 78,20 118,52"/><polygon class="cs" points="174,76 162,20 122,52"/><polygon class="cp" points="76,64 82,36 102,52"/><polygon class="cp" points="164,64 158,36 138,52"/><ellipse class="cf" cx="120" cy="98" rx="64" ry="54"/><path class="cl" d="M120 46v14M106 48l3 12M134 48l-3 12" style="stroke:#e9a56b"/><ellipse class="ci" cx="97" cy="96" rx="6.5" ry="9"/><ellipse class="ci" cx="143" cy="96" rx="6.5" ry="9"/><circle cx="99" cy="92" r="2.4" fill="#fff"/><circle cx="145" cy="92" r="2.4" fill="#fff"/><circle class="cp" cx="80" cy="114" r="9" opacity=".6"/><circle class="cp" cx="160" cy="114" r="9" opacity=".6"/><polygon class="cp" points="113,106 127,106 120,114"/><path class="cl" d="M120 114q-7 10-15 4M120 114q7 10 15 4M72 104l-20-4M72 112l-20 4M168 104l20-4M168 112l20 4"/><ellipse class="cf" cx="92" cy="160" rx="16" ry="11"/><ellipse class="cf" cx="148" cy="160" rx="16" ry="11"/><path class="cb" d="M62 164h116q-4 46-58 46t-58-46z"/><ellipse cx="120" cy="164" rx="58" ry="9" fill="#f8e6a6"/><circle cx="104" cy="162" r="5" fill="#e9a56b"/><circle cx="122" cy="164" r="5" fill="#8bbf8e"/><circle cx="138" cy="161" r="5" fill="#e9737f"/></svg><span>示範畫面：此處放開罐質地影片</span></div>
+</div></div>
+
+<div class="wrap trust"><div><span>🎬</span><p style="margin:0"><b>開罐實拍</b><small>質地看得見</small></p></div><div><span>🔬</span><p style="margin:0"><b>SGS 檢驗報告</b><small>營養數據透明</small></p></div><div><span>🎁</span><p style="margin:0"><b>試吃包</b><small>先試再買</small></p></div></div>
+
+<section id="analyze"><div class="wrap">
+ <h2>30 秒分析：我家毛孩適合哪些產品？</h2>
+ <p class="meta">選擇寵物種類並輸入資料，算出每日熱量或飼料量，再配對商品。</p>
+ <div class="analyzer">
+  <div class="card f">
+   <div><span class="l label">寵物種類</span><div class="row" id="petSel"></div></div>
+   <div><label class="l" for="w">體重（公斤）</label><input id="w" type="number" min="0.5" max="12" step="any" value="4"></div>
+   <div><label class="l" for="age">年齡階段</label><select id="age"><option value="kitten">幼年（約 1 歲以下）</option><option value="adult" selected>成年</option><option value="senior">高齡</option></select></div>
+   <div><label class="l" for="body">體態</label><select id="body"><option value="thin">偏瘦</option><option value="ok" selected>標準</option><option value="fat">偏胖</option></select></div>
+   <div class="row"><label id="neuL"><input type="checkbox" id="neu" checked>已結紮</label><label><input type="checkbox" id="picky">挑嘴</label></div>
+   <div><span class="l label">特殊需求（可複選）</span>
+    <div class="row" id="needs"></div></div>
+   <button class="btn" id="go">開始分析</button>
+  </div>
+  <div class="card" id="out" aria-live="polite"><p class="meta">填好資料後按「開始分析」，結果會顯示在這裡。</p></div>
+ </div>
+ <p style="margin-top:18px"><button class="btn alt" id="aiOpen2">💬 想更深入？跟 AI 顧問聊聊</button></p>
+</div></section>
+
+<section id="shop" style="background:var(--surface)"><div class="wrap">
+ <h2>商品</h2><div class="trialBar" id="trialBar"></div><div class="row" id="petTabs" style="margin-top:10px"></div><div class="row" id="catTabs" style="margin-top:6px"></div>
+ <p class="meta" id="fnote">顯示全部商品。用上方「商品分類」兩次點擊內篩選。</p>
+ <div class="grid" id="grid"></div>
+</div></section>
+
+<section id="detail"><div class="wrap">
+ <div class="card">
+  <div class="row" style="justify-content:space-between;align-items:center"><h2 id="dName"></h2><span class="price" id="dPrice"></span></div>
+  <div class="tabs" role="tablist"><button role="tab" aria-selected="true" data-t="0">適口性與開罐</button><button role="tab" aria-selected="false" data-t="1">科學營養</button></div>
+  <div id="tab0"></div><div id="tab1" hidden></div>
+  <div class="row" style="margin-top:16px"><button class="btn" id="dAdd">加入購物車</button><button class="btn alt" id="dSub">改為定期購（95 折，寄倉）</button></div><div id='rv' style='margin-top:20px'></div>
+ </div>
+</div></section>
+
+<section id="proof" style="background:var(--sage)"><div class="wrap">
+ <h2>真實買家秀</h2>
+ <p class="meta">以下為示範內容，上線後替換為用戶生成的照片與留言。</p>
+ <div class="reviews">
+  <div class="card">😺 <b>豆花（4 歲）</b><p>平常聞一下就走，這包居然吃光光，連盤子都舔乾淨。</p></div>
+  <div class="card">🐶 <b>麻糬（9 歲，米克斯）</b><p>換成關節餐三週，上下樓梯比較順了。</p></div>
+  <div class="card">🙀 <b>可可（1 歲）</b><p>調味包拌一點就開動，朋友用我的推薦碼也折了 $50。</p></div>
+ </div>
+ <p style="margin-top:18px"><b>社群熱銷榜：</b><span id="top"></span></p>
+</div></section>
+
+<section id="admin" hidden style="background:var(--surface)"><div class="wrap">
+ <div class="row" style="justify-content:space-between;align-items:center"><h2>賣家後台</h2><span class="row"><button class="btn alt" id="csv">匯出訂單 CSV</button><button class="btn alt" id="admX">回到頂端</button></span></div>
+ <p class="meta" id="admNote"></p>
+ <div class="kpi" id="kpi"></div>
+ <div class="charts"><div class="card"><h3>各寵物營收</h3><div id="chPet"></div></div><div class="card"><h3>各類別營收</h3><div id="chCat"></div></div><div class="card"><h3>熱銷商品（件數）</h3><div id="chProd"></div></div></div>
+  <div class='card' id='abcCard' style='margin-top:16px'>
+  <div class='row' style='justify-content:space-between;align-items:center'><h3>ABC 商品分析</h3><span class='meta' id='abcAt' aria-live='off'></span></div>
+  <p class='meta'>依訂單資料自動分級：累計占比未達 A 門檻前的商品為 A（主力），其次到 B 門檻為 B，其餘為 C。資料約每 8 秒自動同步，有新訂單、改庫存或調整下方條件時會立即重算。</p>
+  <div class='abcCtl'>
+   <span class='seg' role='group' aria-label='分析依據'><button data-abc='basis:rev' class='on'>依營收</button><button data-abc='basis:qty'>依銷量</button></span>
+   <span class='seg' role='group' aria-label='期間'><button data-abc='range:all' class='on'>全部</button><button data-abc='range:30'>近 30 天</button><button data-abc='range:7'>近 7 天</button></span>
+   <label><input type='checkbox' id='abcPaid' checked>排除待付款訂單</label>
+   <label>A 到 <input class='fi' id='abcA' type='number' min='1' max='98' value='80'>%　B 到 <input class='fi' id='abcB' type='number' min='2' max='99' value='95'>%</label>
+   <button class='chip' id='abcCsv'>匯出 ABC CSV</button>
+  </div>
+  <div id='abcOut'></div>
+ </div>
+ <div class="card tw"><table><thead><tr><th>訂單</th><th>時間</th><th>收件人</th><th>金額</th><th>付款</th><th>狀態</th></tr></thead><tbody id="ordT"></tbody></table></div>
+ <div class='card' style='margin-top:16px'><h3>商品上下架</h3><p class='meta'>切換狀態、改價格或庫存後立即生效，下架商品不會出現在前台。</p><p class='meta' id='stkNote'></p><div class='tw' style='max-height:340px;overflow:auto'><table><thead><tr><th>商品</th><th>圖片</th><th>寵物</th><th>價格</th><th>庫存</th><th>狀態</th></tr></thead><tbody id='prodT'></tbody></table></div>
+  <h3 style='margin-top:14px'>新增商品</h3><div class='row'><input id='npN' class='fi' placeholder='商品名稱'><select id='npPet' class='fi'></select><select id='npC' class='fi'></select><input id='npP' class='fi' type='number' min='1' placeholder='價格' style='width:110px'><button class='btn' id='npAdd'>新增並上架</button></div></div>
+</div></section>
+<footer><div class="wrap">示範網站：商品、價格與評價均為虛構。熱量與餵食量為一般估算，寵物有疾病或特殊狀況請諮詢獸醫師。</div></footer>
+
+<div class="sticky" id="sticky"><div style="flex:1"><b id="sName"></b><div class="meta">好友推薦折 $50</div></div><button class="btn" id="sAdd">加入購物車</button></div>
+
+<aside class="drawer" id="drawer" aria-label="購物車">
+ <div class="row" style="justify-content:space-between;align-items:center"><h2 style="font-size:1.3rem">購物車</h2><button class="chip" id="close">關閉</button></div>
+ <p class="meta" style="margin:8px 0 4px" id="prog"></p>
+ <div class="bar"><i id="progBar" style="width:0"></i></div>
+ <div id="items"></div>
+ <div class="row" style="margin:12px 0"><input id="code" placeholder="推薦碼（試試 MEOW50）" style="flex:1;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><button class="chip" id="apply">套用</button></div>
+ <div id="sum"></div>
+ <p class="meta">一般商品、試吃包與寄倉定期購在同一張訂單結帳，運費由系統自動計算。</p>
+ <div class="row"><button class="btn" id="pay">一鍵結帳</button><button class="btn alt" id="line">LINE 快速登入</button></div>
+</aside>
+<div class="modal" id="ck" hidden><div class="box" role="dialog" aria-label="結帳">
+ <div class="g" id="ckForm"><h2 style="font-size:1.3rem">結帳</h2><p class="meta" id="ckSum"></p>
+  <input id="ckName" placeholder="收件人姓名" autocomplete="name"><input id="ckTel" placeholder="手機號碼" inputmode="tel" autocomplete="tel"><input id="ckAddr" placeholder="收件地址" autocomplete="street-address">
+  <select id="ckShip"><option>冷凍宅配（鮮食）</option><option>常溫宅配</option><option>超商取貨</option></select>
+  <select id="ckPay"><option>信用卡</option><option>LINE Pay</option><option>貨到付款</option></select>
+  <p class="meta">這是示範網站，請勿填入真實個資與卡號，也不會真的扣款。</p>
+  <div class="row"><button class="btn" id="ckGo">確認送出訂單</button><button class="btn alt" id="ckX">返回</button></div></div>
+ <div class="g" id="payBox" hidden>
+  <h2 style="font-size:1.3rem">付款</h2>
+  <div class="paySum"><span>訂單 <b id="payNo"></b></span><span class="payAmt" id="payAmt"></span></div>
+  <p class="meta" id="payMeth"></p>
+  <div id="payCard" class="g" hidden>
+   <input id="pcNum" placeholder="卡號 4242 4242 4242 4242" inputmode="numeric" autocomplete="off" maxlength="23">
+   <div class="row"><input id="pcExp" placeholder="有效期限 MM/YY" inputmode="numeric" autocomplete="off" maxlength="5" style="flex:1;min-width:0"><input id="pcCvc" placeholder="安全碼 CVC" inputmode="numeric" autocomplete="off" maxlength="4" style="flex:1;min-width:0"></div>
+   <input id="pcName" placeholder="持卡人姓名" autocomplete="off">
+  </div>
+  <div id="payLine" class="g" hidden>
+   <div class="qrBox"><svg id="payQr" viewBox="0 0 21 21" shape-rendering="crispEdges" role="img" aria-label="LINE Pay 示範 QR"></svg><p class="meta">請用 LINE Pay 掃描（示範用圖樣）</p></div>
+  </div>
+  <p class="meta" id="payErr" style="color:#c0392b" role="alert"></p>
+  <p class="meta">這是示範付款畫面，不會連線金流、不會扣款，輸入的卡號也不會被儲存或送出。測試卡號：4242 4242 4242 4242，期限與安全碼任填未過期的數字即可。</p>
+  <div class="row"><button class="btn" id="payGo">確認付款</button><button class="btn alt" id="payLater">稍後付款</button></div>
+ </div>
+ <div class="g" id="ckDone" hidden><h2 style="font-size:1.3rem">訂單已送出</h2><p>訂單編號：<b id="ckNo"></b></p><p class="meta">感謝你的訂購，我們會盡快出貨。</p><button class="btn" id="ckOk">完成</button></div>
+</div></div>
+<div class="modal" id="mb" hidden><div class="box" role="dialog" aria-label="會員">
+ <div class="g" id="auth"><h2 style="font-size:1.3rem">會員登入</h2>
+  <div class="row"><button class="chip on" data-am="login">登入</button><button class="chip" data-am="reg">註冊</button></div>
+  <div id="mNameW" class="g" hidden><input id="mName" placeholder="暱稱" autocomplete="nickname"><input id="mInv" placeholder="賣家邀請碼（買家免填）"></div>
+  <input id="mEmail" type="email" placeholder="Email" autocomplete="email"><input id="mPass" type="password" placeholder="密碼（至少 6 碼）" autocomplete="current-password">
+  <p class="meta" id="mErr" style="color:var(--accent);margin:0"></p>
+  <div class="row"><button class="btn" id="mGo">登入</button><button class="btn alt" id="mLine">LINE 快速登入</button><button class="btn alt" id="mX">關閉</button></div>
+  <p class="meta">示範會員系統：帳號只存在這個瀏覽器，請勿使用常用密碼。</p></div>
+ <div class="g" id="center" hidden><h2 style="font-size:1.3rem" id="hello"></h2>
+  <div class="item"><span>累積購物金</span><b id="pts"></b></div><div class="item"><span>我的推薦碼</span><b id="myCode"></b></div>
+  <h3>我的毛孩</h3><div id="mPets"></div><div class="row"><input id="pName" placeholder="毛孩名字" style="flex:1"><button class="btn alt" id="pSave">儲存分析區的資料</button></div>
+  <h3>訂單紀錄</h3><div id="mOrd"></div>
+  <div class="row"><button class="btn alt" id="mOut">登出</button><button class="btn" id="cX">關閉</button></div></div>
+</div></div>
+<button class="btn aiFab" id="aiFab" aria-label="開啟 AI 顧問" aria-haspopup="dialog">🐾 AI 顧問</button>
+<div class="aiBox" id="aiBox" hidden role="dialog" aria-label="AI 顧問">
+ <div class="aiHd"><div><b>肉球 AI 顧問</b><div class="meta" id="aiMode"></div></div><span><button class="chip" id="aiReset">重來</button><button class="chip" id="aiX" aria-label="關閉 AI 顧問">關閉</button></span></div>
+ <div class="aiLog" id="aiLog" aria-live="polite"></div>
+ <div class="aiBar" id="aiBar"></div>
+ <div class="aiIn"><textarea id="aiTx" rows="1" maxlength="500" placeholder="例：我家 3 歲的貓，常軟便又很挑嘴…" aria-label="輸入訊息"></textarea><button class="btn" id="aiSend">送出</button></div>
+ <p class="meta aiFoot">AI 建議僅供選購參考；毛孩身體不適請先諮詢獸醫師。</p>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+const P=[
+{id:1,n:"嫩雞南瓜鮮食餐",meat:"雞肉",e:"🍗",k:130,dm:24,ca:1.2,pr:420,ages:["adult"],tags:["picky","digest"],d:"雞胸與雞腿肉現切，南瓜幫助順暢好消化。",sold:980},
+{id:2,n:"鮭魚亮毛鮮食餐",meat:"鮭魚",e:"🐟",k:145,dm:26,ca:1.1,pr:480,ages:["adult","senior"],tags:["skin","picky"],d:"鮭魚油 Omega-3 豐富，適合毛躁、愛掉毛的貓。",sold:860},
+{id:3,n:"低敏鴨肉鮮食餐",meat:"鴨肉",e:"🦆",k:140,dm:25,ca:1.2,pr:490,ages:["adult","senior"],tags:["digest","skin"],d:"單一肉種配方，適合腸胃敏感或換肉種的貓。",sold:540},
+{id:4,n:"蔓越莓火雞鮮食餐",meat:"火雞",e:"🦃",k:120,dm:23,ca:1.1,pr:460,ages:["adult","senior"],tags:["urinary","light"],d:"高含水量、低礦物質設計，幫助貓咪多喝水。",sold:720},
+{id:5,n:"幼貓肉慕斯",meat:"雞肉",e:"🍼",k:150,dm:27,ca:1.3,pr:440,ages:["kitten"],tags:["picky"],d:"滑順慕斯質地，高熱量密度，支援成長期。",sold:610},
+{id:6,n:"輕盈火雞蔬菜餐",meat:"火雞",e:"🥬",k:95,dm:20,ca:1.2,pr:450,ages:["adult","senior"],tags:["light","urinary"],d:"低熱量高飽足，適合需要控制體重的貓。",sold:430},
+{id:7,n:"軟骨關節雞肉餐",meat:"雞肉",e:"🦴",k:135,dm:25,ca:1.2,pr:500,ages:["senior","adult"],tags:["joint"],d:"添加雞軟骨與綠唇貽貝，照顧高齡貓的行動力。",sold:390},
+{id:8,n:"鮮食試吃包（3 種口味）",meat:"綜合",e:"🎁",k:130,dm:24,ca:1.2,pr:99,ages:["kitten","adult","senior"],tags:["picky"],d:"先試再買，不合口味不浪費。",sold:1200,trial:1},
+{id:9,n:"獨家調味包（海苔鰹魚）",meat:"鰹魚",e:"🥄",k:0,dm:90,ca:1.0,pr:120,ages:["kitten","adult","senior"],tags:["picky"],d:"撒一點在鮮食上，挑嘴貓也開動。",sold:700,addon:1},
+{id:10,pet:"dog",n:"嫩雞糙米鮮食餐",meat:"雞肉",e:"🍗",k:125,dm:25,ca:1.3,pr:520,ages:["adult"],tags:["digest","picky"],d:"雞胸肉搭配糙米與蔬菜，好消化又香。",sold:900},
+{id:11,pet:"dog",n:"牛肉亮毛鮮食餐",meat:"牛肉",e:"🥩",k:150,dm:27,ca:1.2,pr:580,ages:["adult","senior"],tags:["skin","picky"],d:"牛肉與魚油，毛色更有光澤。",sold:760},
+{id:12,pet:"dog",n:"鮭魚低敏鮮食餐",meat:"鮭魚",e:"🐟",k:140,dm:26,ca:1.2,pr:560,ages:["adult","senior"],tags:["skin","digest"],d:"單一蛋白來源，適合皮膚與腸胃敏感的狗。",sold:520},
+{id:13,pet:"dog",n:"幼犬成長鮮食餐",meat:"雞肉",e:"🍼",k:155,dm:27,ca:1.4,pr:540,ages:["kitten"],tags:["picky","digest"],d:"高蛋白、鈣磷比適合成長期骨骼發育。",sold:480},
+{id:14,pet:"dog",n:"關節保健羊肉餐",meat:"羊肉",e:"🐑",k:135,dm:25,ca:1.2,pr:590,ages:["senior","adult"],tags:["joint"],d:"羊肉搭配葡萄糖胺，照顧大型犬與高齡犬關節。",sold:410},
+{id:15,pet:"dog",n:"輕盈火雞蔬菜餐",meat:"火雞",e:"🥦",k:100,dm:21,ca:1.2,pr:500,ages:["adult","senior"],tags:["light","digest"],d:"低熱量高纖，幫助體重管理。",sold:370},
+{id:16,pet:"dog",n:"潔牙雞肉骨",meat:"雞肉",e:"🦴",k:0,dm:90,ca:1.1,pr:180,ages:["kitten","adult","senior"],tags:["dental"],d:"耐咬質地，幫助減少牙垢。",sold:640,addon:1,u:"潔牙點心"},
+{id:17,pet:"dog",n:"肉鬆拌飯粉",meat:"雞肉",e:"🥄",k:0,dm:92,ca:1.0,pr:150,ages:["kitten","adult","senior"],tags:["picky"],d:"撒在飯上，提升適口性。",sold:350,addon:1,u:"調味配件"},
+{id:18,pet:"dog",n:"犬用鮮食試吃包",meat:"綜合",e:"🎁",k:130,dm:25,ca:1.2,pr:129,ages:["kitten","adult","senior"],tags:["picky"],d:"三種口味各一包，先試再買。",sold:800,trial:1},
+{id:19,pet:"rabbit",n:"提摩西牧草",meat:"牧草",e:"🌾",k:0,dm:88,ca:1.5,pr:260,ages:["kitten","adult","senior"],tags:["fiber","dental","digest"],d:"兔子的主食，需隨時供應，幫助磨牙與腸胃蠕動。",sold:900,addon:1,always:1,u:"牧草 500g"},
+{id:20,pet:"rabbit",n:"成兔高纖顆粒飼料",meat:"牧草",e:"🐰",k:0,dm:90,ca:1.2,pr:320,ages:["adult","senior"],tags:["fiber","digest","light"],d:"高纖低澱粉，作為牧草之外的營養補充。",sold:520,u:"顆粒飼料"},
+{id:21,pet:"rabbit",n:"幼兔苜蓿成長飼料",meat:"苜蓿",e:"🍀",k:0,dm:90,ca:1.5,pr:340,ages:["kitten"],tags:["picky"],d:"苜蓿提供成長所需的蛋白質與鈣。",sold:300,u:"顆粒飼料"},
+{id:22,pet:"rabbit",n:"蔬果凍乾點心",meat:"蔬果",e:"🥕",k:0,dm:92,ca:1.0,pr:130,ages:["kitten","adult","senior"],tags:["picky"],d:"少量當獎勵，不宜當主食。",sold:410,addon:1,u:"點心"},
+{id:23,pet:"guinea",n:"天竺鼠維他命 C 飼料",meat:"牧草",e:"🐁",k:0,dm:90,ca:1.2,pr:300,ages:["kitten","adult","senior"],tags:["fiber","skin"],d:"含穩定維生素 C，天竺鼠無法自行合成。",sold:450,u:"顆粒飼料"},
+{id:24,pet:"guinea",n:"提摩西牧草",meat:"牧草",e:"🌾",k:0,dm:88,ca:1.5,pr:260,ages:["kitten","adult","senior"],tags:["fiber","dental","digest"],d:"每天不限量供應，幫助磨牙與消化。",sold:380,addon:1,always:1,u:"牧草 500g"},
+{id:25,pet:"hamster",n:"倉鼠綜合穀糧",meat:"穀物",e:"🐹",k:0,dm:90,ca:1.1,pr:150,ages:["kitten","adult","senior"],tags:["digest","picky"],d:"穀物、種子與蛋白質均衡搭配。",sold:460,u:"綜合穀糧"},
+{id:26,pet:"hamster",n:"麵包蟲乾蛋白點心",meat:"麵包蟲",e:"🪱",k:0,dm:94,ca:1.0,pr:90,ages:["kitten","adult","senior"],tags:["picky"],d:"補充蛋白質的小點心，每週少量即可。",sold:300,addon:1,u:"點心"},
+{id:27,pet:"bird",n:"鸚鵡營養顆粒",meat:"穀物",e:"🦜",k:0,dm:90,ca:1.2,pr:380,ages:["kitten","adult","senior"],tags:["skin","digest"],d:"均衡顆粒主食，羽毛更亮、減少挑食。",sold:420,u:"顆粒飼料"},
+{id:28,pet:"bird",n:"綜合種子穀物",meat:"種子",e:"🌻",k:0,dm:91,ca:1.0,pr:220,ages:["kitten","adult","senior"],tags:["picky"],d:"多種種子與穀物，適口性高，建議搭配顆粒食用。",sold:340,u:"種子穀物"},
+{id:29,pet:"cat",c:"snack",n:"凍乾雞胸肉塊",meat:"雞肉",e:"🍖",dm:95,ca:1,pr:220,tags:["picky"],d:"單一雞胸肉凍乾，可當零食或拌飯。",sold:690,addon:1,u:"凍乾零食"},
+{id:30,pet:"cat",c:"health",n:"化毛草本膏",meat:"化毛",e:"🌿",pr:280,tags:["digest"],d:"幫助毛球排出，減少吐毛。",sold:430,addon:1,u:"保健品"},
+{id:31,pet:"cat",c:"health",n:"貓用益生菌粉",meat:"益生菌",e:"🧪",pr:350,tags:["digest"],d:"維持腸道菌相，換食時更穩定。",sold:520,addon:1,u:"保健品"},
+{id:32,pet:"cat",c:"health",n:"深海魚油",meat:"魚油",e:"💧",pr:420,tags:["skin"],d:"補充 Omega-3，照顧皮膚與毛髮。",sold:380,addon:1,u:"保健品"},
+{id:33,pet:"cat",c:"supply",n:"低粉塵豆腐貓砂",meat:"貓砂",e:"🧺",pr:260,tags:[],d:"結團快、低粉塵，可沖馬桶。",sold:800,addon:1,u:"寵物用品"},
+{id:34,pet:"cat",c:"supply",n:"逗貓羽毛玩具",meat:"玩具",e:"🪶",pr:150,tags:[],d:"激發捕獵本能，增加運動量。",sold:360,addon:1,u:"寵物用品"},
+{id:35,pet:"dog",c:"health",n:"犬用益生菌",meat:"益生菌",e:"🧪",pr:380,tags:["digest"],d:"改善軟便，維持腸道健康。",sold:470,addon:1,u:"保健品"},
+{id:36,pet:"dog",c:"health",n:"關節葡萄糖胺咀嚼錠",meat:"關節",e:"💊",pr:650,tags:["joint"],d:"葡萄糖胺與軟骨素，照顧行動力。",sold:410,addon:1,u:"保健品"},
+{id:37,pet:"dog",c:"health",n:"犬用魚油",meat:"魚油",e:"💧",pr:480,tags:["skin"],d:"讓毛色更亮，減緩皮膚乾癢。",sold:350,addon:1,u:"保健品"},
+{id:38,pet:"dog",c:"supply",n:"可調式胸背帶牽繩組",meat:"外出",e:"🦮",pr:690,tags:[],d:"透氣網布與反光條，夜間散步更安全。",sold:520,addon:1,u:"寵物用品"},
+{id:39,pet:"dog",c:"supply",n:"耐咬潔牙玩具",meat:"玩具",e:"🎾",pr:260,tags:["dental"],d:"凹凸表面邊玩邊清潔牙齒。",sold:430,addon:1,u:"寵物用品"},
+{id:40,pet:"dog",c:"snack",n:"凍乾牛肉塊",meat:"牛肉",e:"🥩",dm:94,ca:1,pr:260,tags:["picky"],d:"訓練獎勵最佳選擇，單一牛肉。",sold:560,addon:1,u:"凍乾零食"},
+{id:41,pet:"rabbit",c:"health",n:"兔用益生菌",meat:"益生菌",e:"🧪",pr:300,tags:["digest"],d:"幫助腸胃蠕動，減少脹氣。",sold:240,addon:1,u:"保健品"},
+{id:42,pet:"rabbit",c:"supply",n:"木質啃咬玩具",meat:"玩具",e:"🪵",pr:120,tags:["dental"],d:"天然蘋果木，幫助磨牙。",sold:280,addon:1,u:"寵物用品"},
+{id:43,pet:"rabbit",c:"supply",n:"兔用躲藏木屋",meat:"居家",e:"🏠",pr:380,tags:[],d:"提供安全感的躲藏空間。",sold:200,addon:1,u:"寵物用品"},
+{id:44,pet:"guinea",c:"health",n:"維生素 C 滴劑",meat:"維生素",e:"💊",pr:220,tags:["skin"],d:"加入飲水即可補充維生素 C。",sold:260,addon:1,u:"保健品"},
+{id:45,pet:"hamster",c:"supply",n:"靜音跑輪",meat:"運動",e:"🎡",pr:360,tags:[],d:"靜音軸承，夜間運動不吵人。",sold:310,addon:1,u:"寵物用品"},
+{id:46,pet:"hamster",c:"supply",n:"浴沙與浴室",meat:"清潔",e:"🛁",pr:120,tags:[],d:"倉鼠用細浴沙，保持毛髮乾爽。",sold:230,addon:1,u:"寵物用品"},
+{id:47,pet:"bird",c:"health",n:"鳥用綜合維他命",meat:"維生素",e:"💊",pr:260,tags:["skin"],d:"換羽期補充營養，羽毛更亮。",sold:220,addon:1,u:"保健品"},
+{id:48,pet:"bird",c:"supply",n:"啃咬鞦韆玩具",meat:"玩具",e:"🧸",pr:180,tags:[],d:"天然木塊與繩結，豐富鳥籠生活。",sold:190,addon:1,u:"寵物用品"},
+{"id":49,"pet":"cat","c":"snack","n":"凍乾鮭魚塊","meat":"鮭魚","e":"🐟","dm":95,"ca":1,"pr":240,"tags":["skin","picky"],"d":"整塊鮭魚低溫凍乾，Omega-3 豐富，可當零食或拌飯。","sold":481,"addon":1,"u":"凍乾零食"},
+{"id":50,"pet":"cat","c":"snack","n":"鰹魚肉泥條","meat":"鰹魚","e":"🍥","dm":88,"ca":1,"pr":180,"tags":["picky"],"d":"一條一次份量，直接擠給貓咪舔食，適合餵藥或增進食慾。","sold":304,"addon":1,"u":"肉泥零食"},
+{"id":51,"pet":"cat","c":"snack","n":"貓草潔牙餅","meat":"雞肉","e":"🌿","dm":92,"ca":1,"pr":160,"tags":["dental","digest"],"d":"加入貓草與雞肉的酥脆小餅，幫助刮除牙垢與順毛。","sold":554,"addon":1,"u":"潔牙點心"},
+{"id":52,"pet":"cat","c":"health","n":"泌尿保健蔓越莓粉","meat":"蔓越莓","e":"🫐","pr":360,"tags":["urinary"],"d":"含蔓越莓與 D-甘露糖，每天一匙拌入鮮食，維持泌尿道健康。","sold":199,"addon":1,"u":"保健品"},
+{"id":53,"pet":"cat","c":"health","n":"貓用軟骨關節粉","meat":"軟骨","e":"🦴","pr":420,"tags":["joint"],"d":"鯊魚軟骨與葡萄糖胺，照顧高齡貓與大型貓的關節。","sold":224,"addon":1,"u":"保健品"},
+{"id":54,"pet":"cat","c":"supply","n":"立式多層貓抓板","meat":"貓抓","e":"🐾","pr":450,"tags":[],"d":"瓦楞紙與麻繩雙材質，耐抓不掉屑，讓貓咪磨爪不拆沙發。","sold":698,"addon":1,"u":"寵物用品"},
+{"id":55,"pet":"cat","c":"supply","n":"不鏽鋼寬口餵食碗","meat":"餐具","e":"🥣","pr":220,"tags":[],"d":"淺口寬面設計，減少鬍鬚壓迫，容易清洗不殘味。","sold":246,"addon":1,"u":"寵物用品"},
+{"id":56,"pet":"cat","c":"supply","n":"循環活水飲水機","meat":"飲水","e":"⛲","pr":890,"tags":["urinary"],"d":"流動活水吸引貓咪多喝水，濾芯可更換。","sold":524,"addon":1,"u":"寵物用品"},
+{"id":57,"pet":"dog","c":"snack","n":"凍乾雞肝塊","meat":"雞肉","e":"🍗","dm":94,"ca":1,"pr":230,"tags":["picky"],"d":"單一雞肝凍乾，訓練獎勵用，香味濃郁。","sold":209,"addon":1,"u":"凍乾零食"},
+{"id":58,"pet":"dog","c":"snack","n":"地瓜雞肉條","meat":"雞肉","e":"🍠","dm":88,"ca":1,"pr":190,"tags":["digest"],"d":"慢烤地瓜包覆雞胸肉，纖維豐富，咬起來有嚼勁。","sold":669,"addon":1,"u":"烘烤零食"},
+{"id":59,"pet":"dog","c":"health","n":"犬用護眼葉黃素","meat":"葉黃素","e":"👁️","pr":520,"tags":[],"d":"葉黃素與藍莓萃取，照顧淚痕與眼睛健康。","sold":369,"addon":1,"u":"保健品"},
+{"id":60,"pet":"dog","c":"health","n":"犬用皮毛卵磷脂","meat":"卵磷脂","e":"✨","pr":460,"tags":["skin"],"d":"卵磷脂搭配魚油，改善毛躁掉毛與皮膚乾癢。","sold":188,"addon":1,"u":"保健品"},
+{"id":61,"pet":"dog","c":"supply","n":"慢食防噎狗碗","meat":"餐具","e":"🥘","pr":320,"tags":["digest"],"d":"立體紋路延長進食時間，減少吞嚥過快與嘔吐。","sold":238,"addon":1,"u":"寵物用品"},
+{"id":62,"pet":"dog","c":"supply","n":"反光舒適項圈","meat":"外出","e":"🔦","pr":280,"tags":[],"d":"夜間反光車線，內裡柔軟不磨頸，附可調式扣環。","sold":594,"addon":1,"u":"寵物用品"},
+{"id":63,"pet":"dog","c":"supply","n":"記憶棉寵物床","meat":"床墊","e":"🛏️","pr":1280,"tags":["joint"],"d":"貼合身形的記憶棉床墊，保護高齡犬關節，外套可拆洗。","sold":578,"addon":1,"u":"寵物用品"},
+{"id":64,"pet":"rabbit","c":"food","n":"鴨茅果園草","meat":"牧草","e":"🌾","k":0,"dm":88,"ca":1.1,"pr":280,"ages":["kitten","adult","senior"],"tags":["fiber","dental"],"d":"口感柔軟、香氣足的第二主食牧草，可與提摩西輪替。","sold":221,"u":"牧草 500g"},
+{"id":65,"pet":"rabbit","c":"food","n":"燕麥草","meat":"牧草","e":"🌱","k":0,"dm":88,"ca":1.0,"pr":270,"ages":["kitten","adult","senior"],"tags":["fiber","picky"],"d":"帶穗燕麥草，適口性高，適合挑嘴兔與換食期。","sold":396,"u":"牧草 500g"},
+{"id":66,"pet":"rabbit","c":"food","n":"老兔低鈣高纖顆粒","meat":"牧草","e":"🐇","k":0,"dm":90,"ca":0.8,"pr":340,"ages":["senior"],"tags":["fiber","urinary"],"d":"鈣質控制在較低範圍，適合高齡兔與容易結石的兔子。","sold":242,"u":"顆粒飼料"},
+{"id":67,"pet":"rabbit","c":"snack","n":"牧草餅乾","meat":"牧草","e":"🍪","dm":90,"ca":1.0,"pr":150,"tags":["dental","picky"],"d":"以牧草壓製的磨牙餅乾，不含糖，可每天少量給予。","sold":714,"addon":1,"u":"點心"},
+{"id":68,"pet":"rabbit","c":"snack","n":"乾燥洋甘菊","meat":"香草","e":"🌼","dm":92,"ca":1.0,"pr":130,"tags":["digest"],"d":"整朵乾燥洋甘菊，舒緩緊張，也能增加飲食變化。","sold":584,"addon":1,"u":"點心"},
+{"id":69,"pet":"rabbit","c":"snack","n":"小米穗","meat":"穀物","e":"🌾","dm":90,"ca":1.0,"pr":120,"tags":["picky"],"d":"當作互動獎勵，每週少量即可。","sold":210,"addon":1,"u":"點心"},
+{"id":70,"pet":"rabbit","c":"health","n":"兔用化毛纖維錠","meat":"纖維","e":"💊","pr":260,"tags":["digest","fiber"],"d":"換毛季協助排出毛球，預防腸胃停滯。","sold":276,"addon":1,"u":"保健品"},
+{"id":71,"pet":"rabbit","c":"health","n":"兔用維他命 B 群","meat":"維生素","e":"🧪","pr":280,"tags":["digest"],"d":"補充 B 群，食慾不振或壓力大時使用。","sold":378,"addon":1,"u":"保健品"},
+{"id":72,"pet":"rabbit","c":"health","n":"兔用關節軟骨粉","meat":"軟骨","e":"🦴","pr":360,"tags":[],"d":"葡萄糖胺搭配軟骨素，照顧老兔的後腳與關節。","sold":213,"addon":1,"u":"保健品"},
+{"id":73,"pet":"rabbit","c":"health","n":"兔用皮毛魚油","meat":"魚油","e":"💧","pr":330,"tags":["skin"],"d":"少量添加即可，改善毛色與皮屑。","sold":556,"addon":1,"u":"保健品"},
+{"id":74,"pet":"rabbit","c":"supply","n":"懸掛式牧草架","meat":"草架","e":"🧺","pr":260,"tags":["fiber"],"d":"掛在籠邊，牧草不落地不弄髒，吃草更衛生。","sold":200,"addon":1,"u":"寵物用品"},
+{"id":75,"pet":"rabbit","c":"supply","n":"陶瓷防翻食盆","meat":"餐具","e":"🥣","pr":190,"tags":[],"d":"厚重陶瓷不易打翻，耐咬不易刮傷。","sold":376,"addon":1,"u":"寵物用品"},
+{"id":76,"pet":"rabbit","c":"supply","n":"柳編滾球玩具","meat":"玩具","e":"⚽","pr":150,"tags":["dental"],"d":"天然柳條編織，可啃可滾，消耗精力。","sold":197,"addon":1,"u":"寵物用品"},
+{"id":77,"pet":"guinea","c":"food","n":"幼鼠成長顆粒","meat":"牧草","e":"🐹","k":0,"dm":90,"ca":1.4,"pr":320,"ages":["kitten"],"tags":["fiber","skin"],"d":"高鈣、含穩定維生素 C，支援幼年天竺鼠成長。","sold":720,"u":"顆粒飼料"},
+{"id":78,"pet":"guinea","c":"food","n":"老年天竺鼠軟顆粒","meat":"牧草","e":"🐁","k":0,"dm":90,"ca":1.1,"pr":330,"ages":["senior"],"tags":["digest","fiber"],"d":"顆粒質地較軟，牙口不好的老年天竺鼠也容易咀嚼。","sold":286,"u":"顆粒飼料"},
+{"id":79,"pet":"guinea","c":"food","n":"燕麥草","meat":"牧草","e":"🌱","k":0,"dm":88,"ca":1.0,"pr":270,"ages":["kitten","adult","senior"],"tags":["fiber","picky"],"d":"帶穗燕麥草，增加牧草選擇，挑嘴也愛吃。","sold":446,"u":"牧草 500g"},
+{"id":80,"pet":"guinea","c":"food","n":"苜蓿牧草（幼鼠適用）","meat":"苜蓿","e":"🍀","k":0,"dm":88,"ca":1.5,"pr":290,"ages":["kitten"],"tags":["fiber"],"d":"高蛋白高鈣，適合幼鼠與懷孕母鼠，成鼠限量。","sold":579,"u":"牧草 500g"},
+{"id":81,"pet":"guinea","c":"snack","n":"甜椒凍乾脆片","meat":"蔬果","e":"🫑","dm":92,"ca":1.0,"pr":160,"tags":["picky","skin"],"d":"維生素 C 含量高的凍乾甜椒，當作點心剛剛好。","sold":297,"addon":1,"u":"點心"},
+{"id":82,"pet":"guinea","c":"snack","n":"芹菜葉凍乾","meat":"蔬果","e":"🥬","dm":92,"ca":1.0,"pr":140,"tags":["digest"],"d":"低糖低熱量蔬菜點心，酥脆有香氣。","sold":703,"addon":1,"u":"點心"},
+{"id":83,"pet":"guinea","c":"snack","n":"蒲公英葉乾","meat":"香草","e":"🌿","dm":90,"ca":1.1,"pr":150,"tags":["digest","fiber"],"d":"乾燥蒲公英葉，纖維豐富，可混入牧草中。","sold":270,"addon":1,"u":"點心"},
+{"id":84,"pet":"guinea","c":"snack","n":"牧草磨牙餅","meat":"牧草","e":"🍪","dm":90,"ca":1.0,"pr":150,"tags":["dental"],"d":"壓製牧草餅，幫助磨牙。","sold":465,"addon":1,"u":"點心"},
+{"id":85,"pet":"guinea","c":"health","n":"維生素 C 咀嚼錠","meat":"維生素","e":"🍊","pr":280,"tags":["skin"],"d":"一天一錠，穩定補充維生素 C，預防壞血病。","sold":335,"addon":1,"u":"保健品"},
+{"id":86,"pet":"guinea","c":"health","n":"天竺鼠益生菌粉","meat":"益生菌","e":"🧪","pr":320,"tags":["digest"],"d":"換食或軟便時，維持腸道菌相。","sold":255,"addon":1,"u":"保健品"},
+{"id":87,"pet":"guinea","c":"health","n":"天竺鼠化毛纖維粉","meat":"纖維","e":"💊","pr":250,"tags":["digest","fiber"],"d":"長毛品種適用，減少毛球堆積。","sold":342,"addon":1,"u":"保健品"},
+{"id":88,"pet":"guinea","c":"health","n":"天竺鼠皮毛魚油","meat":"魚油","e":"💧","pr":310,"tags":["skin"],"d":"改善皮屑與毛髮乾澀。","sold":531,"addon":1,"u":"保健品"},
+{"id":89,"pet":"guinea","c":"supply","n":"天竺鼠木質躲藏屋","meat":"居家","e":"🏠","pr":380,"tags":[],"d":"天然無塗料，提供安全感的躲藏空間。","sold":249,"addon":1,"u":"寵物用品"},
+{"id":90,"pet":"guinea","c":"supply","n":"懸掛式牧草架","meat":"草架","e":"🧺","pr":240,"tags":["fiber"],"d":"讓牧草保持乾淨，減少浪費。","sold":710,"addon":1,"u":"寵物用品"},
+{"id":91,"pet":"guinea","c":"supply","n":"陶瓷防翻食盆","meat":"餐具","e":"🥣","pr":180,"tags":[],"d":"厚重不易打翻，容易清洗。","sold":214,"addon":1,"u":"寵物用品"},
+{"id":92,"pet":"guinea","c":"supply","n":"棉布睡窩","meat":"床墊","e":"🛌","pr":260,"tags":[],"d":"柔軟保暖，可機洗，冬天特別需要。","sold":211,"addon":1,"u":"寵物用品"},
+{"id":93,"pet":"guinea","c":"supply","n":"紙棉環保墊料","meat":"墊料","e":"📦","pr":300,"tags":[],"d":"低粉塵吸水性佳，減少異味。","sold":360,"addon":1,"u":"寵物用品"},
+{"id":94,"pet":"hamster","c":"food","n":"幼鼠高蛋白穀糧","meat":"穀物","e":"🐹","k":0,"dm":90,"ca":1.2,"pr":160,"ages":["kitten"],"tags":["picky"],"d":"蛋白質比例較高，適合成長期倉鼠。","sold":658,"u":"綜合穀糧"},
+{"id":95,"pet":"hamster","c":"food","n":"黃金鼠專用主食","meat":"穀物","e":"🌽","k":0,"dm":90,"ca":1.1,"pr":170,"ages":["kitten","adult","senior"],"tags":["digest"],"d":"依黃金鼠體型調整顆粒大小，營養均衡。","sold":694,"u":"綜合穀糧"},
+{"id":96,"pet":"hamster","c":"food","n":"侏儒倉鼠低糖穀糧","meat":"穀物","e":"🌾","k":0,"dm":90,"ca":1.0,"pr":180,"ages":["kitten","adult","senior"],"tags":["digest","light"],"d":"低糖配方，適合易有血糖問題的侏儒品種。","sold":587,"u":"綜合穀糧"},
+{"id":97,"pet":"hamster","c":"food","n":"老年倉鼠軟糧","meat":"穀物","e":"🥣","k":0,"dm":90,"ca":1.1,"pr":190,"ages":["senior"],"tags":["digest"],"d":"質地較軟、好咀嚼，適合高齡倉鼠。","sold":471,"u":"綜合穀糧"},
+{"id":98,"pet":"hamster","c":"snack","n":"向日葵籽","meat":"種子","e":"🌻","dm":93,"ca":1.0,"pr":110,"tags":["picky"],"d":"當作獎勵，高油脂請少量。","sold":626,"addon":1,"u":"點心"},
+{"id":99,"pet":"hamster","c":"snack","n":"小米穗","meat":"穀物","e":"🌾","dm":90,"ca":1.0,"pr":100,"tags":["picky"],"d":"陪伴與互動用的小點心。","sold":614,"addon":1,"u":"點心"},
+{"id":100,"pet":"hamster","c":"snack","n":"乾燥蒲公英","meat":"香草","e":"🌼","dm":90,"ca":1.0,"pr":120,"tags":["digest"],"d":"低糖香草，增加飲食多樣性。","sold":520,"addon":1,"u":"點心"},
+{"id":101,"pet":"hamster","c":"snack","n":"南瓜籽","meat":"種子","e":"🎃","dm":93,"ca":1.0,"pr":130,"tags":["picky"],"d":"香脆好吃，每週少量即可。","sold":456,"addon":1,"u":"點心"},
+{"id":102,"pet":"hamster","c":"health","n":"倉鼠維他命滴劑","meat":"維生素","e":"💊","pr":230,"tags":["skin"],"d":"加入飲水補充綜合維他命。","sold":404,"addon":1,"u":"保健品"},
+{"id":103,"pet":"hamster","c":"health","n":"倉鼠益生菌粉","meat":"益生菌","e":"🧪","pr":260,"tags":["digest"],"d":"換食、軟便或壓力大時使用。","sold":334,"addon":1,"u":"保健品"},
+{"id":104,"pet":"hamster","c":"health","n":"倉鼠護毛營養粉","meat":"營養","e":"✨","pr":240,"tags":["skin"],"d":"換毛期補充，毛色更亮。","sold":399,"addon":1,"u":"保健品"},
+{"id":105,"pet":"hamster","c":"health","n":"倉鼠鈣質礦物磚","meat":"礦物","e":"🧱","pr":150,"tags":["dental"],"d":"可啃咬的礦物磚，補鈣兼磨牙。","sold":233,"addon":1,"u":"保健品"},
+{"id":106,"pet":"hamster","c":"health","n":"倉鼠腸胃舒緩粉","meat":"纖維","e":"💊","pr":250,"tags":["digest"],"d":"消化不良或拉肚子時使用。","sold":457,"addon":1,"u":"保健品"},
+{"id":107,"pet":"hamster","c":"supply","n":"木製躲藏屋","meat":"居家","e":"🏠","pr":220,"tags":[],"d":"天然木材，提供隱密安全的睡眠空間。","sold":687,"addon":1,"u":"寵物用品"},
+{"id":108,"pet":"hamster","c":"supply","n":"滴管式飲水瓶","meat":"飲水","e":"🚰","pr":160,"tags":[],"d":"防漏滴管，容易補水也容易清洗。","sold":656,"addon":1,"u":"寵物用品"},
+{"id":109,"pet":"hamster","c":"supply","n":"倉鼠隧道管","meat":"玩具","e":"🛝","pr":190,"tags":[],"d":"可自由組合的透明管道，增加探索樂趣。","sold":501,"addon":1,"u":"寵物用品"},
+{"id":110,"pet":"bird","c":"food","n":"文鳥主食穀糧","meat":"穀物","e":"🐦","k":0,"dm":90,"ca":1.1,"pr":200,"ages":["kitten","adult","senior"],"tags":["picky"],"d":"小型鳥專用穀物配方，粒徑適中。","sold":609,"u":"綜合穀糧"},
+{"id":111,"pet":"bird","c":"food","n":"小型鸚鵡綜合顆粒","meat":"穀物","e":"🦜","k":0,"dm":90,"ca":1.2,"pr":340,"ages":["kitten","adult","senior"],"tags":["skin","digest"],"d":"適合玄鳳、虎皮等小型鸚鵡的均衡顆粒。","sold":444,"u":"顆粒飼料"},
+{"id":112,"pet":"bird","c":"food","n":"幼鳥手養奶粉","meat":"穀物","e":"🍼","k":0,"dm":95,"ca":1.4,"pr":420,"ages":["kitten"],"tags":["digest"],"d":"高營養好吸收，用於幼鳥育雛與手養。","sold":224,"u":"育雛營養"},
+{"id":113,"pet":"bird","c":"snack","n":"小米穗","meat":"穀物","e":"🌾","dm":90,"ca":1.0,"pr":120,"tags":["picky"],"d":"文鳥、鸚鵡都愛，互動訓練必備。","sold":270,"addon":1,"u":"點心"},
+{"id":114,"pet":"bird","c":"snack","n":"鳥用水果乾","meat":"蔬果","e":"🍎","dm":92,"ca":1.0,"pr":180,"tags":["picky"],"d":"無添加糖的乾燥水果，增加口味變化。","sold":674,"addon":1,"u":"點心"},
+{"id":115,"pet":"bird","c":"snack","n":"種子營養棒","meat":"種子","e":"🥜","dm":92,"ca":1.0,"pr":160,"tags":["picky"],"d":"黏合種子的啃咬棒，兼具玩具功能。","sold":578,"addon":1,"u":"點心"},
+{"id":116,"pet":"bird","c":"snack","n":"燕麥片","meat":"穀物","e":"🥣","dm":90,"ca":1.0,"pr":110,"tags":["digest"],"d":"原味燕麥，易消化，可拌入顆粒。","sold":318,"addon":1,"u":"點心"},
+{"id":117,"pet":"bird","c":"snack","n":"堅果碎","meat":"堅果","e":"🌰","dm":94,"ca":1.0,"pr":200,"tags":["picky"],"d":"高油脂點心，每週少量即可。","sold":500,"addon":1,"u":"點心"},
+{"id":118,"pet":"bird","c":"health","n":"鳥用益生菌","meat":"益生菌","e":"🧪","pr":280,"tags":["digest"],"d":"維持腸道平衡，換食與壓力期使用。","sold":305,"addon":1,"u":"保健品"},
+{"id":119,"pet":"bird","c":"health","n":"鳥用液態維他命","meat":"維生素","e":"💊","pr":260,"tags":["skin"],"d":"加入飲水補充，換羽期尤其需要。","sold":650,"addon":1,"u":"保健品"},
+{"id":120,"pet":"bird","c":"health","n":"鳥用鈣質補充粉","meat":"礦物","e":"🦴","pr":220,"tags":[],"d":"繁殖期與換羽期補鈣，預防軟蛋與骨骼問題。","sold":581,"addon":1,"u":"保健品"},
+{"id":121,"pet":"bird","c":"health","n":"鳥用電解質粉","meat":"電解質","e":"💧","pr":240,"tags":[],"d":"夏季高溫或壓力大時補充，預防脫水。","sold":190,"addon":1,"u":"保健品"},
+{"id":122,"pet":"bird","c":"supply","n":"天然墨魚骨","meat":"啃咬","e":"🦴","pr":90,"tags":["dental"],"d":"補鈣兼磨喙，掛在籠內即可。","sold":229,"addon":1,"u":"寵物用品"},
+{"id":123,"pet":"bird","c":"supply","n":"不鏽鋼飲水器","meat":"飲水","e":"🚰","pr":210,"tags":[],"d":"防污染設計，保持水質乾淨。","sold":471,"addon":1,"u":"寵物用品"},
+{"id":124,"pet":"bird","c":"supply","n":"天然木棲木組","meat":"居家","e":"🪵","pr":260,"tags":[],"d":"不同粗細的棲木，幫助鳥足健康。","sold":498,"addon":1,"u":"寵物用品"},
+{"id":125,"pet":"bird","c":"supply","n":"鳥籠保暖防塵罩","meat":"居家","e":"🧣","pr":380,"tags":[],"d":"夜間覆蓋，穩定溫度與光線，利於休息。","sold":508,"addon":1,"u":"寵物用品"}
+];
+P.forEach(p=>{p.pet=p.pet||'cat';p.c=p.c||(p.addon?'snack':'food');p.ages=p.ages||['kitten','adult','senior']});const CAT={food:'主食',snack:'零食',health:'保健',supply:'用品'};let shopCat='all';
+const TAG={urinary:'泌尿保健',skin:'皮毛亮澤',digest:'腸胃敏感',joint:'關節保健',light:'體重管理',picky:'挑嘴適口',dental:'潔牙護齦',fiber:'高纖護腸'};
+const PETS={
+cat:{n:'貓',e:'🐱',min:.5,max:12,def:4,kcal:1,m:{kitten:2.5,adult:1.4,neu:1.2,senior:1.1},needs:['urinary','skin','digest','joint']},
+dog:{n:'狗',e:'🐶',min:.5,max:80,def:10,kcal:1,m:{kitten:2.5,adult:1.8,neu:1.6,senior:1.4},needs:['skin','digest','joint','dental']},
+rabbit:{n:'兔',e:'🐰',min:.3,max:7,def:2,pct:{kitten:4,adult:2.5,senior:2.5},note:'牧草須全天不限量，蔬菜每天一小把，並備好乾淨飲水。',needs:['fiber','digest','dental']},
+guinea:{n:'天竺鼠',e:'🐁',min:.2,max:1.8,def:.9,pct:{kitten:3.5,adult:3,senior:3},note:'每天要補充維生素 C，牧草不限量。',needs:['fiber','skin']},
+hamster:{n:'倉鼠',e:'🐹',min:.02,max:.25,def:.1,pct:{kitten:10,adult:10,senior:8},note:'倉鼠會囤糧，每天換新並避免高糖點心。',needs:['digest']},
+bird:{n:'鳥',e:'🦜',min:.02,max:2,def:.1,pct:{kitten:12,adult:10,senior:8},note:'以顆粒飼料為主，種子當點心，另備新鮮蔬果。',needs:['skin','digest']}
+};
+let petSel='cat',shopPet='all';
+function renderCats(){$('#catTabs').innerHTML=[['all','全部類別'],...Object.entries(CAT)].map(([k,n])=>`<button class='chip${shopCat==k?' on':''}' data-sc='${k}'>${n}</button>`).join('')}
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(t&&t.dataset.sc){shopCat=t.dataset.sc;filter=null;renderCats();renderGrid()}});
+const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
+function wrapDb(raw){if(!raw)return null;
+ const ws=x=>({id:x.id,exists:x.exists,metadata:x.metadata,data:()=>clone(x.data())}),wq=x=>({docs:x.docs.map(ws),size:x.size,empty:x.empty,metadata:x.metadata});
+ const dref=r=>({id:r.id,path:r.path,get:async()=>ws(await r.get()),set:d=>r.set(d),update:d=>r.update(d),delete:()=>r.delete(),onSnapshot:(n,e)=>r.onSnapshot(x=>n(ws(x)),e),collection:c=>cref(r.collection(c))});
+ const cref=c=>({path:c.path,get:async()=>wq(await c.get()),onSnapshot:(n,e)=>c.onSnapshot(x=>n(wq(x)),e),doc:i=>dref(c.doc(i)),add:async d=>dref(await c.add(d))});
+ return{doc:p=>dref(raw.doc(p)),collection:p=>cref(raw.collection(p))}}
+let DB=null,UID=null,OWNER=false,ORD=[],SB=null;
+/* ===== Supabase 轉接層：讓 GitHub Pages 版本用同一套 doc/collection 介面存取資料庫 ===== */
+function sbDb(sb){const LIS=new Set(),tick=()=>LIS.forEach(l=>l.run());
+ const ws=r=>({id:r?r.id:null,exists:!!r,data:()=>r?clone(r.data):undefined}),chk=r=>{if(r.error)throw r.error;return r.data};
+ const live=(load,f,e)=>{let on=true;const l={run:async()=>{if(!on)return;try{f(await load())}catch(x){if(e)e(x)}}};LIS.add(l);l.run();const t=setInterval(()=>{if(document.visibilityState=='visible')l.run()},8000);return()=>{on=false;clearInterval(t);LIS.delete(l)}};
+ const dref=(c,id)=>{const path=c+'/'+id;return{id,path,
+  get:async()=>ws(chk(await sb.from('docs').select('id,data').eq('path',path).maybeSingle())),
+  set:async d=>{chk(await sb.from('docs').upsert({path,coll:c,id,data:clone(d)}));tick()},
+  delete:async()=>{chk(await sb.from('docs').delete().eq('path',path));tick()},
+  onSnapshot:(f,e)=>live(async()=>ws(chk(await sb.from('docs').select('id,data').eq('path',path).maybeSingle())),f,e)}};
+ const cref=c=>{const load=async()=>{const r=chk(await sb.from('docs').select('id,data').eq('coll',c))||[];return{docs:r.map(ws),size:r.length,empty:!r.length}};
+  return{path:c,get:load,onSnapshot:(f,e)=>live(load,f,e),doc:id=>dref(c,id)}};
+ return{doc:p=>{const i=p.indexOf('/');return dref(p.slice(0,i),p.slice(i+1))},collection:cref}}
+const sbMsg=e=>{const m=(e&&e.message)||'';return/invalid login/i.test(m)?'Email 或密碼不正確':/already registered/i.test(m)?'這個 Email 已註冊，請直接登入':/email not confirmed/i.test(m)?'請先到信箱點擊確認連結':/rate limit/i.test(m)?'操作太頻繁，請稍後再試':m||'發生錯誤，請稍後再試'};
+async function sbApply(sess){const u=sess&&sess.user;if((u?u.id:null)===UID&&(u?SESS:true))return;
+ UID=u?u.id:null;OWNER=false;
+ if(!u){SESS=null;try{localStorage.removeItem(SK)}catch(e){}renderMem();TU=0;renderTrial();return}
+ try{const r=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();OWNER=!!r.data}catch(e){}
+ await syncMembers();const email=(u.email||'').toLowerCase();
+ if(!mget().some(x=>x.email==email))save({email,name:(u.user_metadata&&u.user_metadata.name)||email.split('@')[0],points:0,pets:[],role:'buyer'});
+ {const a=mget(),i=a.findIndex(x=>x.email==email);a[i].role=OWNER?'seller':'buyer';a[i].owner=UID;mset(a)}
+ login(email);
+ if(OWNER){showAdmin(true);if(!sbOrdersOn){sbOrdersOn=true;DB.collection('orders').onSnapshot(s=>{ORD=s.docs.flatMap(d=>d.data().list||[]);renderAdmin()},()=>{})}}}
+let sbOrdersOn=false;
+async function sbInit(){const c=window.MEOW_CONFIG;SB=window.supabase.createClient(c.supabaseUrl,c.supabaseKey);DB=sbDb(SB);
+ const iv=$('#mInv');if(iv)(iv.closest('label')||iv).hidden=true;$('#mLine').hidden=true;
+ SB.auth.onAuthStateChange((ev,sess)=>{if(ev=='SIGNED_IN'||ev=='SIGNED_OUT'||ev=='USER_UPDATED')setTimeout(()=>sbApply(sess),0)});
+ const r=await SB.auth.getSession();await sbApply(r.data.session)}
+async function sbProducts(){try{const r=await SB.from('products').select('id,data').order('id');if(r.error||!r.data||!r.data.length)return;
+ P.splice(0,P.length,...r.data.map(x=>clone(x.data)));P.forEach(p=>{p.pet=p.pet||'cat';p.c=p.c||(p.addon?'snack':'food');p.ages=p.ages||['kitten','adult','senior'];p.pr0=p.pr;if(p.st0==null)p.st0=defStock(p.id)})}catch(e){}}const LK='mj_orders';
+const lget=()=>{try{return JSON.parse(localStorage.getItem(LK)||'[]')}catch(e){return[]}};
+const lset=a=>{try{localStorage.setItem(LK,JSON.stringify(a))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const FC={'雞肉':'#f2c27b','鮭魚':'#f4978e','鴨肉':'#c98f6b','火雞':'#e8b27d','牛肉':'#b5574f','羊肉':'#c4846a','綜合':'#cdbb86','牧草':'#9bc27a','苜蓿':'#8dbb6a','穀物':'#d9bf7a','種子':'#d9b45a','蔬果':'#e08a4f','鱰魚':'#c9a27a','麵包蟲':'#a67c52'};
+const PCOL={cat:'#e9737f',dog:'#6aa6d8',rabbit:'#a58fd6',guinea:'#e0a050',hamster:'#d98b5f',bird:'#4fb59a'};
+function pimg(p){if(p.img)return `<img class='pphoto' src='${p.img}' alt='${esc(p.n)}' loading='lazy' onerror="this.outerHTML=pimg({...P.find(x=>x.id==${p.id}),img:null})">`;
+ const col=PCOL[p.pet],f=FC[p.meat]||'#d9c9a0',n=p.n,l=[n.slice(0,6),n.slice(6,12)].filter(Boolean);
+ const tx=(ls,x,y,fs)=>ls.map((s,i)=>`<text x='${x}' y='${y+i*(fs+2.5)}' font-size='${fs}' font-weight='700' text-anchor='middle' fill='#263043'>${esc(s)}</text>`).join('');
+ const lab=(x,y,w,h)=>`<rect x='${x}' y='${y}' width='${w}' height='${h}' rx='5' fill='#fff'/>${tx(l,x+w/2,y+12,8.5)}`;
+ const badge=`<circle cx='98' cy='28' r='13' fill='#fff'/><text x='98' y='34' font-size='16' text-anchor='middle'>${p.e}</text>`;
+ let b;
+ if(p.c=='supply')b=`<circle cx='60' cy='46' r='34' fill='${col}' opacity='.25'/><text x='60' y='60' font-size='42' text-anchor='middle'>${p.e}</text>${tx([n.slice(0,8),n.slice(8,16)].filter(Boolean),60,96,9)}`;
+ else if(p.c=='health')b=`<rect x='48' y='14' width='24' height='10' rx='3' fill='#263043'/><rect x='30' y='24' width='60' height='72' rx='12' fill='${col}'/>${lab(33,44,54,32)}${badge}`;
+ else if(p.c=='snack')b=`<path d='M32 28h56l4 10v54q0 6-6 6H34q-6 0-6-6V38z' fill='${col}'/><rect x='32' y='28' width='56' height='6' fill='#fff' opacity='.4'/>${lab(33,48,54,32)}${badge}`;
+ else b=`<rect x='28' y='38' width='64' height='58' rx='8' fill='${col}'/><ellipse cx='60' cy='38' rx='32' ry='9' fill='#fff' opacity='.55'/><ellipse cx='60' cy='38' rx='27' ry='6.5' fill='${f}'/>${lab(33,54,54,32)}${badge}`;
+ return `<svg viewBox='0 0 120 112' style='width:100%;height:100%' role='img' aria-label='${esc(n)}'>${b}</svg>`}
+const LOW=5,defStock=id=>id%23==0?0:id%9==0?1+id%5:12+(id*17)%49;
+let RV=[],DBRV=[];P.forEach(p=>{p.pr0=p.pr;p.st0=defStock(p.id)});
+let SOLD={},DBS={};
+const TRIAL_MAX=2,isTrial=id=>{const p=P.find(x=>x.id==id);return !!(p&&p.trial)},monthKey=t=>{const d=new Date(t);return d.getFullYear()*12+d.getMonth()};
+let TU=0;
+const trialInCart=()=>cart.filter(c=>isTrial(c.id)).reduce((a,c)=>a+c.q,0);
+async function myOrders(){const m=SESS&&me();if(!m)return[];const l=lget().filter(o=>o.member==m.email);
+ if(DB&&UID){try{const s=await DB.doc('orders/'+UID).get();if(s.exists)(s.data().list||[]).forEach(o=>{if(o.member==m.email&&!l.some(x=>x.id==o.id))l.push(o)})}catch(e){}}return l}
+async function trialUsed(){const k=monthKey(Date.now());return(await myOrders()).filter(o=>monthKey(o.ts)==k).reduce((s,o)=>s+o.items.filter(i=>isTrial(i.id)).reduce((a,i)=>a+i.q,0),0)}
+async function refreshTrial(){TU=SESS?await trialUsed():0;renderTrial()}
+function renderTrial(){const b=$('#trialBar');if(!b)return;const tp=P.filter(p=>p.trial&&!p.off);
+ if(!tp.length){b.hidden=true;return}b.hidden=false;
+ if(!SESS){b.innerHTML=`<div><b>🎁 會員專屬試吃包</b><div class='meta'>加入會員後，每月可領 ${TRIAL_MAX} 份試吃包，點選後直接填運送資料結帳。</div></div><div class='row'><button class='btn' data-trial='login'>登入／註冊領取</button></div>`;return}
+ const left=Math.max(0,TRIAL_MAX-TU);
+ b.innerHTML=`<div><b>🎁 本月已領 ${TU}／${TRIAL_MAX} 份試吃包</b><div class='meta'>${left?`還可以領 ${left} 份，點選後直接進入結帳填寫運送資料。`:'本月額度已用完，下個月 1 號重新計算。'}</div></div><div class='row'>${tp.map(p=>`<button class='btn' data-trial='${p.id}'${left?'':' disabled'}>${PETS[p.pet].e} ${PETS[p.pet].n}試吃包 ${money(p.pr)}</button>`).join('')}</div>`}
+async function claimTrial(id){
+ if(!SESS||id=='login'){toast('請先登入會員才能領取試吃包');$('#mb').hidden=false;return}
+ await refreshTrial();const b=trialInCart();add(+id);if(trialInCart()>b)openCk()}
+const stockOf=p=>Math.max(0,(p.st!=null?p.st:(p.st0!=null?p.st0:20))-(SOLD[p.id]||0));
+const stTag=p=>{const n=stockOf(p);return n<=0?"<span class='stk out'>已售完</span>":n<=LOW?`<span class='stk low'>僅剩 ${n} 件</span>`:''};
+const lsales=()=>{try{return JSON.parse(localStorage.getItem('mj_sales')||'{}')}catch(e){return{}}};
+function recalcSold(){SOLD={};const add=m=>{for(const k in m)SOLD[k]=(SOLD[k]||0)+m[k]};add(DBS);add(lsales());try{renderGrid();renderDetail();renderCart();renderMgr()}catch(e){}}
+async function recordSale(items){const q={};items.forEach(i=>q[i.id]=(q[i.id]||0)+i.q);
+ let ok=false;try{if(DB&&UID){const r=DB.doc('sales/'+UID);let m={};try{const s=await r.get();if(s.exists)m=s.data().q||{}}catch(e){}for(const k in q)m[k]=(m[k]||0)+q[k];await r.set({q:m});ok=true;for(const k in q)DBS[k]=(DBS[k]||0)+q[k]}}catch(e){}
+ if(!ok){const m=lsales();for(const k in q)m[k]=(m[k]||0)+q[k];try{localStorage.setItem('mj_sales',JSON.stringify(m))}catch(e){}}
+ recalcSold()}
+const lrget=()=>{try{return JSON.parse(localStorage.getItem('mj_rev')||'[]')}catch(e){return[]}};
+const lrset=a=>{try{localStorage.setItem('mj_rev',JSON.stringify(a))}catch(e){}};
+function stars(id){const l=RV.filter(r=>r.pid==id);if(!l.length)return'';const a=l.reduce((s,r)=>s+r.s,0)/l.length;return`★${a.toFixed(1)}（${l.length}）`}
+function renderRv(){const box=$('#rv');if(!box)return;const l=RV.filter(r=>r.pid==cur.id).sort((a,b)=>b.ts-a.ts),m=SESS&&me();
+ box.innerHTML=`<h3>買家評論 ${stars(cur.id)}</h3>`+
+ (m?`<div class='g'><select id='rvS' class='fi'>${[5,4,3,2,1].map(n=>`<option value='${n}'>${'★'.repeat(n)}</option>`).join('')}</select><textarea id='rvT' class='fi' rows='3' maxlength='300' placeholder='分享毛孩的心得…'></textarea><div><button class='btn' id='rvGo'>送出評論</button></div></div>`:`<p class='meta'>登入會員後即可評論。 <button class='chip' id='rvLogin'>登入／註冊</button></p>`)+
+ (l.length?l.slice(0,20).map(r=>`<div class='rec'><b>${esc(r.name)}</b> <span style='color:var(--accent)'>${'★'.repeat(r.s)}</span>${r.buyer?` <span class='pill'>已購買</span>`:''}<div>${esc(r.t)}</div><div class='meta'>${new Date(r.ts).toLocaleDateString('zh-TW')}</div></div>`).join(''):'<p class="meta">還沒有評論，成為第一位吧。</p>')}
+function mergeRv(){RV=DBRV.concat(lrget());renderGrid();renderRv()}
+function initRv(){if(DB)DB.collection('reviews').onSnapshot(s=>{DBRV=s.docs.flatMap(d=>d.data().list||[]);mergeRv()},()=>{});mergeRv()}
+async function rvSubmit(){const m=me(),t=$('#rvT').value.trim();if(!m)return;if(!t){toast('請輸入評論內容');return}
+ const r={pid:cur.id,s:+$('#rvS').value,t,name:m.name,ts:Date.now(),buyer:lget().some(o=>o.member==m.email&&o.items.some(i=>i.id==cur.id))};
+ let ok=false;try{if(DB&&UID){const ref=DB.doc('reviews/'+UID);let l=[];try{const s=await ref.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(r);await ref.set({list:l});ok=true}}catch(e){}
+ if(!ok){const l=lrget();l.push(r);lrset(l)}mergeRv();toast('已送出評論')}
+function applyCatalog(c){(c.extra||[]).forEach(x=>{if(!P.some(p=>p.id==x.id))P.push(x)});const off=c.off||[],pr=c.price||{};P.forEach(p=>{p.off=off.includes(p.id);p.pr=pr[p.id]||p.pr0;p.st=(c.stock||{})[p.id]!=null?c.stock[p.id]:null})}
+async function loadCatalog(){let c=null;try{if(DB){const s=await DB.doc('catalog/state').get();if(s.exists)c=s.data()}}catch(e){}
+ if(!c){try{c=JSON.parse(localStorage.getItem('mj_cat')||'null')}catch(e){}}
+ if(c)applyCatalog(c);await loadImgs();renderTrial();renderGrid();renderMgr();renderCart()}
+const IK='mj_img';
+function imgMap(){return Object.fromEntries(P.filter(p=>p.img).map(p=>[p.id,p.img]))}
+async function loadImgs(){let done=false;
+ try{if(DB){const q=await DB.collection('productimgs').get();q.docs.forEach(d=>{const p=P.find(x=>x.id==d.id),v=d.data();if(p&&v&&v.img)p.img=v.img});done=q.docs.length>0}}catch(e){}
+ if(!done){try{const m=JSON.parse(localStorage.getItem(IK)||'null');if(m)P.forEach(p=>{if(m[p.id])p.img=m[p.id]})}catch(e){}}}
+async function saveImg(p){try{if(DB&&OWNER){const r=DB.doc('productimgs/'+p.id);if(p.img)await r.set({img:p.img});else await r.delete()}else localStorage.setItem(IK,JSON.stringify(imgMap()))}catch(e){toast('圖片儲存失敗，可能是容量不足');return false}return true}
+const shrink=f=>new Promise((ok,no)=>{const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=no;im.onload=()=>{const S=480,k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.78))};im.src=r.result};r.readAsDataURL(f)});
+async function saveCatalog(){const c={off:P.filter(p=>p.off).map(p=>p.id),price:Object.fromEntries(P.filter(p=>p.pr!=p.pr0).map(p=>[p.id,p.pr])),stock:Object.fromEntries(P.filter(p=>p.st!=null).map(p=>[p.id,p.st])),extra:P.filter(p=>p.id>=1000).map(({img,...o})=>o)};
+ try{if(DB&&OWNER)await DB.doc('catalog/state').set(c);else localStorage.setItem('mj_cat',JSON.stringify(c))}catch(e){toast('儲存失敗')}}
+function renderMgr(){try{renderAbc()}catch(e){}const t=$('#prodT');if(!t)return;{const a=P.filter(p=>!p.off),lo=a.filter(p=>stockOf(p)>0&&stockOf(p)<=LOW),ou=a.filter(p=>stockOf(p)<=0),n=$('#stkNote');if(n)n.innerHTML=(lo.length||ou.length)?`<span class='stk low' style='margin:0'>低庫存 ${lo.length} 項</span> <span class='stk out'>已售完 ${ou.length} 項</span>　庫存 ${LOW} 件以下會在前台標示「僅剩 N 件」。`:'目前沒有低庫存商品。'}t.innerHTML=P.map(p=>`<tr><td>${esc(p.n)}</td><td><div class='mimg'>${p.img?`<img src='${p.img}' alt=''>`:''}<label>${p.img?'更換':'上傳'}<input type='file' accept='image/*' data-img='${p.id}'></label>${p.img?`<button class='chip' data-imgx='${p.id}'>移除</button>`:''}</div></td><td>${PETS[p.pet].n}</td><td><input class='fi' type='number' min='1' value='${p.pr}' data-pp='${p.id}' style='width:90px'></td><td><input class='fi' type='number' min='0' value='${stockOf(p)}' data-stk='${p.id}' style='width:70px'>${stTag(p)}</td><td><button class='chip${p.off?'':' on'}' data-tg='${p.id}'>${p.off?'已下架':'上架中'}</button></td></tr>`).join('')}
+function initSeller(){
+ $('#npPet').innerHTML=Object.entries(PETS).map(([k,v])=>`<option value='${k}'>${v.e} ${v.n}</option>`).join('');
+ $('#npC').innerHTML=Object.entries(CAT).map(([k,n])=>`<option value='${k}'>${n}</option>`).join('');
+ $('#npAdd').onclick=()=>{const n=$('#npN').value.trim(),pr=+$('#npP').value,c=$('#npC').value;if(!n||!(pr>0)){toast('請填寫名稱與價格');return}
+  P.push({id:Date.now(),pet:$('#npPet').value,c,n,meat:'精選',e:{food:'🍽️',snack:'🍖',health:'💊',supply:'🧸'}[c],pr,pr0:pr,st0:20,tags:[],d:'賣家新增的商品。',sold:0,u:'新品',ages:['kitten','adult','senior'],addon:c=='food'?0:1});
+  $('#npN').value='';$('#npP').value='';saveCatalog();renderGrid();renderMgr();toast('已新增並上架')};
+ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.imgx){const p=P.find(x=>x.id==t.dataset.imgx);p.img=null;saveImg(p);renderGrid();renderMgr();if(cur&&cur.id==p.id)renderDetail();toast('已改回預設圖示')}
+  if(t.dataset.tg){const p=P.find(x=>x.id==t.dataset.tg);p.off=!p.off;saveCatalog();renderGrid();renderMgr()}
+  if(t.id=='rvGo')rvSubmit();
+  if(t.id=='rvLogin'){renderMem();$('#mb').hidden=false}});
+ document.addEventListener('change',async e=>{const f=e.target.closest('input[data-img]');if(!f||!f.files[0])return;const p=P.find(x=>x.id==f.dataset.img);
+  try{p.img=await shrink(f.files[0])}catch(err){toast('這個檔案無法當成圖片讀取');return}
+  if(await saveImg(p)){renderGrid();renderMgr();if(cur&&cur.id==p.id)renderDetail();toast('商品圖已更新')}else{p.img=null;renderMgr()}});
+ document.addEventListener('change',e=>{const k=e.target.closest('input[data-stk]');if(!k)return;const p=P.find(x=>x.id==k.dataset.stk),v=Math.round(+k.value);if(!(v>=0)){toast('庫存請輸入 0 以上的數字');renderMgr();return}p.st=v+(SOLD[p.id]||0);saveCatalog();renderGrid();renderDetail();renderMgr();toast('庫存已更新')});
+ document.addEventListener('change',e=>{const i=e.target.closest('input[data-pp]');if(!i)return;const p=P.find(x=>x.id==i.dataset.pp),v=+i.value;if(v>0){p.pr=v;saveCatalog();renderGrid();renderDetail();renderCart();toast('價格已更新')}})}
+function totals(){const sub=cart.reduce((s,c)=>{const p=P.find(x=>x.id==c.id);return s+p.pr*c.q*(c.type=='定期購（寄倉）'?.95:1)},0);const ship=sub==0||sub>=1200?0:120,d=sub?disc:0;return{sub:Math.round(sub),ship,d,total:Math.max(0,Math.round(sub-d+ship))}}
+function openCk(){if(!cart.length){toast('請先加入商品');return}if(SB&&!UID){toast('請先登入會員再結帳');$('#mb').hidden=false;return}$('#ckSum').textContent=`${cart.reduce((s,c)=>s+c.q,0)} 件商品，應付 ${money(totals().total)}`;const m=SESS&&me();if(m){if(!$('#ckName').value)$('#ckName').value=m.rname||m.name;if(!$('#ckTel').value)$('#ckTel').value=m.tel||'';if(!$('#ckAddr').value)$('#ckAddr').value=m.addr||''}$('#ckForm').hidden=false;$('#ckDone').hidden=true;$('#payBox').hidden=true;$('#ckDone h2').textContent='訂單已送出';$('#ck').hidden=false}
+async function submitOrder(){
+ const v=id=>$('#'+id).value.trim();
+ {const need={};cart.forEach(c=>need[c.id]=(need[c.id]||0)+c.q);const bad=Object.keys(need).map(id=>P.find(x=>x.id==id)).filter(p=>need[p.id]>stockOf(p))[0];if(bad){toast(`「${bad.n}」庫存只剩 ${stockOf(bad)} 件，請調整數量`);return}}
+ if(!v('ckName')||!/^[0-9+\-\s]{8,}$/.test(v('ckTel'))||!v('ckAddr')){toast('請填寫姓名、電話與地址');return}
+ if(trialInCart()){if(!SESS){toast('試吃包限會員領取，請先登入');$('#ck').hidden=true;$('#mb').hidden=false;return}const used=await trialUsed();if(used+trialInCart()>TRIAL_MAX){TU=used;renderTrial();toast(`本月試吃包額度剩 ${Math.max(0,TRIAL_MAX-used)} 份，請調整數量`);return}}
+ const o={id:'A'+Date.now().toString(36).toUpperCase(),ts:Date.now(),uid:UID,member:SESS?SESS.email:null,name:v('ckName'),tel:v('ckTel'),addr:v('ckAddr'),pay:$('#ckPay').value,shipM:$('#ckShip').value,...totals(),status:$('#ckPay').value=='貨到付款'?'待出貨':'待付款',items:cart.map(c=>{const p=P.find(x=>x.id==c.id);return{id:p.id,n:p.n,pet:p.pet,c:p.c,type:c.type,q:c.q,pr:Math.round(p.pr*(c.type=='定期購（寄倉）'?.95:1))}})};
+ try{
+  if(DB&&UID){const r=DB.doc('orders/'+UID);let l=[];try{const s=await r.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(o);try{await r.set({list:l})}catch(e){const q=lget();q.push(o);lset(q);ORD=q}}
+  else{const l=lget();l.push(o);lset(l);ORD=l}
+ }catch(e){toast('送出失敗，請稍後再試');return}
+ await recordSale(o.items);refreshTrial();
+ if(SESS)earn(o);cart=[];disc=0;renderCart();$('#ckForm').hidden=true;$('#ckNo').textContent=o.id;$('#drawer').classList.remove('open');renderAdmin();
+ if(o.status=='待付款')showPay(o);else{$('#payBox').hidden=true;$('#ckDone').hidden=false}
+}
+let PAYO=null;
+function qrSvg(seed){let h=0;for(const c of seed)h=(h*31+c.charCodeAt(0))>>>0;const r=()=>(h=(h*1664525+1013904223)>>>0)/4294967296,N=21,f=(x,y)=>(x<8&&y<8)||(x>12&&y<8)||(x<8&&y>12);let d='';
+ for(let y=0;y<N;y++)for(let x=0;x<N;x++){let on;if(f(x,y)){const lx=x>12?x-14:x,ly=y>12?y-14:y;on=lx==0||lx==6||ly==0||ly==6||(lx>=2&&lx<=4&&ly>=2&&ly<=4)}else on=r()>.52;if(on)d+=`<rect x="${x}" y="${y}" width="1" height="1"/>`}return d}
+function showPay(o){PAYO=o;$('#payNo').textContent=o.id;$('#payAmt').textContent=money(o.total);$('#payErr').textContent='';
+ const card=o.pay=='信用卡';$('#payMeth').textContent=card?'付款方式：信用卡':'付款方式：LINE Pay';$('#payCard').hidden=!card;$('#payLine').hidden=card;
+ if(!card)$('#payQr').innerHTML=qrSvg(o.id);['pcNum','pcExp','pcCvc','pcName'].forEach(i=>$('#'+i).value='');
+ $('#payGo').disabled=false;$('#payGo').textContent=card?`確認付款 ${money(o.total)}`:'我已完成 LINE Pay 付款（示範）';$('#payBox').hidden=false;$('#ckDone').hidden=true}
+const luhn=n=>{let s=0,d=false;for(let i=n.length-1;i>=0;i--){let x=+n[i];if(d){x*=2;if(x>9)x-=9}s+=x;d=!d}return s%10==0};
+async function setPaid(id){
+ const mark=l=>{const o=l.find(x=>x.id==id);if(o){o.status='待出貨';o.paidAt=Date.now()}return l};
+ try{if(DB&&UID){const r=DB.doc('orders/'+UID),d=await r.get();if(d.exists){await r.set({list:mark(d.data().list||[])})}}}catch(e){}
+ const l=mark(lget());lset(l);if(!DB)ORD=l;renderAdmin()}
+async function payGo(){
+ const o=PAYO,er=t=>{$('#payErr').textContent=t};if(!o)return;er('');
+ if(o.pay=='信用卡'){
+  const n=$('#pcNum').value.replace(/\s/g,''),e=$('#pcExp').value,c=$('#pcCvc').value.trim(),nm=$('#pcName').value.trim();
+  if(!/^\d{13,19}$/.test(n)||!luhn(n))return er('卡號不正確，請確認後再輸入');
+  const m=/^(\d{2})\/(\d{2})$/.exec(e);if(!m||+m[1]<1||+m[1]>12)return er('有效期限格式請輸入 MM/YY');
+  const now=new Date(),yy=now.getFullYear()%100,mm=now.getMonth()+1;if(+m[2]<yy||(+m[2]==yy&&+m[1]<mm))return er('這張卡已過期');
+  if(!/^\d{3,4}$/.test(c))return er('安全碼為 3 或 4 碼數字');if(!nm)return er('請輸入持卡人姓名')}
+ $('#payGo').disabled=true;$('#payGo').textContent='付款處理中…';
+ await new Promise(r=>setTimeout(r,1200));
+ await setPaid(o.id);PAYO=null;['pcNum','pcExp','pcCvc','pcName'].forEach(i=>$('#'+i).value='');
+ $('#payBox').hidden=true;$('#ckDone').hidden=false;$('#ckDone h2').textContent='付款成功，訂單已成立';toast('付款成功')}
+let SESS=null,AMODE='login';const MK='mj_members',SK='mj_session';
+const mget=()=>{try{return JSON.parse(localStorage.getItem(MK)||'[]')}catch(e){return[]}};
+const mset=a=>{try{localStorage.setItem(MK,JSON.stringify(a))}catch(e){}pushMem()};
+let PT=null;
+function pushMem(){if(!DB||!UID)return;clearTimeout(PT);PT=setTimeout(async()=>{const l=mget().filter(m=>m.owner===UID);try{await DB.doc('members/'+UID).set({accounts:l})}catch(e){toast('會員資料同步失敗')}},400)}
+async function syncMembers(){if(!DB||!UID)return;
+ try{const s=await DB.doc('members/'+UID).get(),a=mget();let ch=false;
+  if(s.exists)(s.data().accounts||[]).forEach(r=>{const i=a.findIndex(x=>x.email==r.email);if(i<0){a.push(r);ch=true}else if(JSON.stringify(a[i])!==JSON.stringify(r)){a[i]=r;ch=true}});
+  a.forEach(m=>{if(!m.owner&&m.email!=SELLER_ACC.email){m.owner=UID;ch=true}});
+  if(ch)mset(a)}catch(e){}}
+const sha=async s=>{const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('mj:'+s));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')};
+const rnd=()=>[...crypto.getRandomValues(new Uint8Array(16))].map(x=>x.toString(16).padStart(2,'0')).join('');
+const pbk=async(pw,salt)=>{const k=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveBits']),b=await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:new TextEncoder().encode(salt),iterations:150000},k,256);return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')};
+const hashFor=(m,pw)=>m&&m.salt?pbk(pw,m.salt):sha(pw);
+const me=()=>mget().find(m=>SESS&&m.email==SESS.email);
+function save(m){if(DB&&UID&&!m.owner&&m.email!=SELLER_ACC.email)m.owner=UID;const a=mget(),i=a.findIndex(x=>x.email==m.email);i<0?a.push(m):a[i]=m;mset(a)}
+function login(email){SESS={email};try{localStorage.setItem(SK,email)}catch(e){}renderMem();refreshTrial()}
+function logout(){if(SB)SB.auth.signOut();SESS=null;try{localStorage.removeItem(SK)}catch(e){}renderMem();TU=0;renderTrial();$('#mb').hidden=true;toast('已登出')}
+function renderMem(){const m=me();try{applyAdmin();renderRv();renderTrial()}catch(e){}$('#memBtn').textContent=m?'👤 '+m.name:'登入／註冊';$('#auth').hidden=!!m;$('#center').hidden=!m;if(!m)return;
+ $('#hello').textContent=`${m.name}${m.role=='seller'?'（賣家）':''}，歡迎回來`;$('#pts').textContent=money(m.points||0);
+ $('#myCode').textContent='MEOW'+m.email.split('').reduce((h,c)=>(h*31+c.charCodeAt(0))>>>0,7).toString(36).toUpperCase().slice(0,5);
+ $('#mPets').innerHTML=(m.pets||[]).length?m.pets.map((p,i)=>`<div class='item'><span>${PETS[p.pet].e} <b>${esc(p.name)}</b>　${p.w} kg</span><span><button class='chip' data-mp='${i}'>套用</button><button class='chip' data-md='${i}'>刪除</button></span></div>`).join(''):'<p class="meta">尚未儲存毛孩資料。</p>';
+ ordHist(m)}
+async function ordHist(m){let l=lget().filter(o=>o.member==m.email);
+ if(DB&&UID){try{const s=await DB.doc('orders/'+UID).get();if(s.exists)l=l.concat((s.data().list||[]).filter(o=>o.member==m.email))}catch(e){}}
+ l.sort((a,b)=>b.ts-a.ts);$('#mOrd').innerHTML=l.length?l.slice(0,10).map(o=>`<div class='item'><span>${esc(o.id)}　${new Date(o.ts).toLocaleDateString('zh-TW')}</span><span>${money(o.total)}　${esc(o.status)}</span></div>`).join(''):'<p class="meta">還沒有訂單。</p>'}
+async function authGo(){const reg=AMODE=='reg',email=$('#mEmail').value.trim().toLowerCase(),pw=$('#mPass').value,name=$('#mName').value.trim(),er=t=>{$('#mErr').textContent=t};
+ if(!/^\S+@\S+\.\S+$/.test(email))return er('請輸入正確的 Email');if(pw.length<6)return er('密碼至少 6 碼');
+if(SB){if(reg&&!name)return er('請輸入暱稱');er('');
+  const r=reg?await SB.auth.signUp({email,password:pw,options:{data:{name}}}):await SB.auth.signInWithPassword({email,password:pw});
+  if(r.error)return er(sbMsg(r.error));
+  if(reg&&!r.data.session){toast('註冊成功，請到信箱點擊確認連結後再登入');return}
+  $('#mPass').value='';toast(reg?'註冊成功，已登入':'登入成功');return}
+ const m=mget().find(x=>x.email==email);
+ if(reg){if(m)return er('這個 Email 已註冊，請直接登入');if(!name)return er('請輸入暱稱');const inv=$('#mInv').value.trim();if(inv&&inv!='MEOWSELLER')return er('賣家邀請碼不正確');const salt=rnd();save({email,salt,hash:await pbk(pw,salt),name,points:0,pets:[],role:inv?'seller':'buyer'})}
+ else if(!m||m.hash!==await hashFor(m,pw))return er('Email 或密碼不正確');
+ er('');$('#mPass').value='';login(email);toast(reg?'註冊成功，已登入':'登入成功')}
+function savePet(){const m=me();if(!m)return;m.pets=m.pets||[];m.pets.push({name:$('#pName').value.trim()||PETS[petSel].n,pet:petSel,w:+$('#w').value,age:$('#age').value,body:$('#body').value,neu:$('#neu').checked,picky:$('#picky').checked,needs:$$('.need:checked').map(x=>x.value)});save(m);$('#pName').value='';renderMem();toast('已儲存毛孩資料')}
+function applyPet(i){const p=me().pets[i];setPet(p.pet,true);$('#w').value=p.w;$('#age').value=p.age;$('#body').value=p.body;$('#neu').checked=p.neu;$('#picky').checked=p.picky;$$('.need').forEach(x=>x.checked=p.needs.includes(x.value));$('#mb').hidden=true;analyze();location.hash='#analyze'}
+function earn(o){const m=me();if(!m)return;m.points=(m.points||0)+Math.floor(o.total/100);m.rname=o.name;m.tel=o.tel;m.addr=o.addr;save(m);renderMem()}
+const SELLER_ACC={email:'seller@example.invalid',hash:'',name:'Seller',role:'seller'};
+function seedSeller(){const a=mget(),i=a.findIndex(x=>x.email==SELLER_ACC.email),o={...SELLER_ACC,...(DB&&UID?{owner:UID}:{})};if(i<0)a.push({...o,points:0,pets:[]});else{a[i]={...a[i],...o};delete a[i].salt}mset(a)}
+function initMember(){
+ try{const e=localStorage.getItem(SK);if(e&&mget().some(m=>m.email==e))SESS={email:e}}catch(e){}
+ $('#memBtn').onclick=()=>{renderMem();$('#mb').hidden=false};
+ $('#mX').onclick=$('#cX').onclick=()=>{$('#mb').hidden=true};
+ $('#mGo').onclick=authGo;$('#mOut').onclick=logout;$('#pSave').onclick=savePet;
+ $('#mLine').onclick=()=>{const e='line-demo@local';if(!mget().some(m=>m.email==e))save({email:e,hash:'',name:'LINE 會員',points:0,pets:[]});login(e);toast('LINE 示範登入成功')};
+ document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.am){AMODE=t.dataset.am;$$('[data-am]').forEach(b=>b.classList.toggle('on',b==t));$('#mNameW').hidden=AMODE!='reg';$('#mGo').textContent=AMODE=='reg'?'註冊':'登入'}
+  if(t.dataset.trial)claimTrial(t.dataset.trial);
+  if(t.dataset.mp)applyPet(+t.dataset.mp);
+  if(t.dataset.md){const m=me();m.pets.splice(+t.dataset.md,1);save(m);renderMem()}});
+ renderMem()}
+let ADM=false,UNLOCK=false;
+function isSeller(){const m=SESS&&me();return !!(m&&m.role=='seller'&&(!DB||OWNER))}
+function applyAdmin(){const v=isSeller();$('#admin').hidden=!v;$('#admLink').hidden=!v;
+ if(v){renderAdmin();renderMgr()}
+ else{['kpi','chPet','chCat','chProd','ordT','prodT','stkNote','admNote','abcOut'].forEach(id=>{const e=$('#'+id);if(e)e.innerHTML=''});if(location.hash=='#admin')history.replaceState(null,'',location.pathname+location.search)}}
+function showAdmin(b){ADM=b;applyAdmin()}
+function bars(m,lab,fmt){const e=Object.entries(m).sort((a,b)=>b[1]-a[1]).slice(0,6),mx=Math.max(1,...e.map(x=>x[1]));return e.length?e.map(([k,v])=>`<div class='hb'><span>${esc(lab(k))}</span><div class='bar'><i style='width:${v/mx*100}%'></i></div><b>${fmt(v)}</b></div>`).join(''):'<p class="meta">尚無資料</p>'}
+function renderAdmin(){
+ if($('#admin').hidden)return;
+ const o=[...ORD].sort((a,b)=>b.ts-a.ts),rev=o.reduce((s,x)=>s+x.total,0),n=o.length,sub=o.filter(x=>x.items.some(i=>i.type.startsWith('定期'))).length,byPet={},byProd={},byCat={};
+ o.forEach(x=>x.items.forEach(i=>{const a=i.pr*i.q;byPet[i.pet]=(byPet[i.pet]||0)+a;byCat[i.c]=(byCat[i.c]||0)+a;byProd[i.n]=(byProd[i.n]||0)+i.q}));
+ $('#kpi').innerHTML=[['訂單數',n],['營收',money(rev)],['客單價',n?money(rev/n):'$0'],['含定期購的訂單',n?Math.round(sub/n*100)+'%':'0%']].map(([a,b])=>`<div class='card'><div class='meta'>${a}</div><div class='kcal' style='font-size:1.8rem'>${b}</div></div>`).join('');
+ $('#chPet').innerHTML=bars(byPet,k=>PETS[k].e+' '+PETS[k].n,money);
+ $('#chCat').innerHTML=bars(byCat,k=>CAT[k],money);
+ $('#chProd').innerHTML=bars(byProd,k=>k,v=>v+' 件');
+ const live=DB&&OWNER;
+ $('#ordT').innerHTML=o.length?o.slice(0,50).map(x=>`<tr><td>${esc(x.id)}</td><td>${new Date(x.ts).toLocaleString('zh-TW',{hour12:false})}</td><td>${esc(x.name)}</td><td>${money(x.total)}</td><td>${esc(x.pay)}</td><td><select data-st='${esc(x.id)}|${esc(x.uid||'')}'>${['待付款','待出貨','已出貨','已完成'].map(s=>`<option${s==x.status?' selected':''}>${s}</option>`).join('')}</select></td></tr>`).join(''):'<tr><td colspan=6>還沒有訂單。到前台加入商品並結帳後，數據會顯示在這裡。</td></tr>';
+ $('#admNote').textContent=live?'即時顯示所有顧客的訂單，只有頁面擁有者看得到。':'目前顯示這個瀏覽器內的測試訂單。';
+ renderAbc();
+}
+async function initBackend(){
+ $('#ckGo').onclick=submitOrder;$('#payGo').onclick=payGo;
+ $('#payLater').onclick=()=>{$('#ck').hidden=true;toast('訂單已保留，狀態為「待付款」')};
+ $('#pcNum').oninput=e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,19).replace(/(.{4})/g,'$1 ').trim()};
+ $('#pcExp').oninput=e=>{let v=e.target.value.replace(/\D/g,'').slice(0,4);if(v.length>2)v=v.slice(0,2)+'/'+v.slice(2);e.target.value=v};
+ $('#pcCvc').oninput=e=>{e.target.value=e.target.value.replace(/\D/g,'').slice(0,4)};
+ const unlock=()=>{UNLOCK=true;applyAdmin();if(!$('#admin').hidden){location.hash='#admin';toast('已進入後台')}};
+ let lc=0,lt=0;$('.logo').addEventListener('click',()=>{const n=Date.now();lc=n-lt<1500?lc+1:1;lt=n;if(lc>=5){lc=0;unlock()}});
+ $('#admX').onclick=()=>scrollTo({top:0,behavior:'smooth'});$('#ckX').onclick=$('#ckOk').onclick=()=>{$('#ck').hidden=true};
+ $('#csv').onclick=async()=>{const rows=[['訂單','時間','收件人','電話','地址','付款','配送','金額','狀態','商品']];ORD.forEach(x=>rows.push([x.id,new Date(x.ts).toLocaleString('zh-TW'),x.name,x.tel,x.addr,x.pay,x.shipM,x.total,x.status,x.items.map(i=>i.n+'×'+i.q).join('；')]));
+  const csv='\ufeff'+rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+  try{const d=typeof claude!='undefined'?await claude.use('downloads'):null;if(!d){if(typeof claude=='undefined'){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='orders.csv';a.click();return}toast('此環境無法下載');return}await d.save({filename:'orders.csv',data:csv})}catch(e){toast('已取消下載')}};
+ document.addEventListener('change',async e=>{const s=e.target.closest('select[data-st]');if(!s||!isSeller())return;const[id,uid]=s.dataset.st.split('|'),val=s.value;let done=false;
+  if(DB&&OWNER&&uid){try{const r=DB.doc('orders/'+uid),d=await r.get();if(d.exists){const l=d.data().list||[],o=l.find(x=>x.id==id);if(o){o.status=val;await r.set({list:l});done=true}}}catch(err){}}
+  {const l=lget(),o=l.find(x=>x.id==id);if(o){o.status=val;lset(l);done=true}}
+  const m=ORD.find(x=>x.id==id);if(m&&done)m.status=val;
+  toast(done?'已更新訂單狀態':'更新失敗，找不到這筆訂單');renderAdmin()});
+ if(typeof claude!='undefined'){try{const u=await claude.use('user');OWNER=u?await u.isOwner():false;UID=u&&u.id?await u.id():null;DB=wrapDb(await claude.use('db'))}catch(e){}}
+ else if(window.MEOW_CONFIG&&window.supabase&&window.MEOW_CONFIG.supabaseUrl&&!/YOUR-/.test(window.MEOW_CONFIG.supabaseUrl)){try{await sbInit()}catch(e){SB=null;DB=null;toast('資料庫連線失敗，改用這個瀏覽器的暫存模式')}}
+ if(DB)DB.collection('sales').onSnapshot(s=>{DBS={};s.docs.forEach(d=>{const q=d.data().q||{};for(const k in q)DBS[k]=(DBS[k]||0)+q[k]});recalcSold()},()=>{});
+ recalcSold();
+ if((!DB||OWNER)&&!SB)seedSeller();
+ await syncMembers();
+ try{const e=localStorage.getItem(SK);if(e&&!SESS&&mget().some(m=>m.email==e))SESS={email:e}}catch(e){}
+ renderMem();
+ if(SB){if(!OWNER){ORD=[];showAdmin(true)}}
+ else if(DB&&OWNER){showAdmin(true);DB.collection('orders').onSnapshot(s=>{const dl=s.docs.flatMap(d=>d.data().list||[]);ORD=[...dl,...lget().filter(x=>!dl.some(d=>d.id==x.id))];renderAdmin()},()=>{})}
+ else{ORD=lget();showAdmin(true)}
+ if(SB)await sbProducts();
+ loadCatalog();initRv();refreshTrial();
+}
+function renderTabs(){$('#petTabs').innerHTML=[['all','全部','🐾'],...Object.entries(PETS).map(([k,v])=>[k,v.n,v.e])].map(([k,n,e])=>`<button class='chip${shopPet==k?' on':''}' data-sp='${k}'>${e} ${n}</button>`).join('')}
+function setPet(k,sync){petSel=k;const p=PETS[k],w=$('#w');w.min=p.min;w.max=p.max;w.step='any';w.value=p.def;
+ $('#neuL').style.display=p.kcal?'':'none';
+ $('#needs').innerHTML=p.needs.map(t=>`<label><input type='checkbox' class='need' value='${t}'>${TAG[t]}</label>`).join('');
+ $('#petSel').innerHTML=Object.entries(PETS).map(([k2,v])=>`<button class='chip${k2==k?' on':''}' data-pet='${k2}'>${v.e} ${v.n}</button>`).join('');
+ $('#out').innerHTML='<p class="meta">填好資料後按「開始分析」，結果會顯示在這裡。</p>';
+ if(sync){shopPet=k;renderTabs()}renderGrid()}
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.pet)setPet(t.dataset.pet,true);
+ if(t.dataset.sp){shopPet=t.dataset.sp;filter=null;renderTabs();renderGrid();if(t.closest('#mm')){$('#mm').classList.remove('open');location.hash='#shop'}}});
+function analyze(){
+ const pet=PETS[petSel],w=+$('#w').value;
+ if(!(w>=pet.min&&w<=pet.max)){$('#out').innerHTML=`<p>${pet.n}的體重請輸入 ${pet.min}–${pet.max} 公斤。</p>`;return}
+ const age=$('#age').value,body=$('#body').value,neu=$('#neu').checked,picky=$('#picky').checked;
+ const needs=$$('.need:checked').map(x=>x.value);if(body=='fat'&&pet.kcal)needs.push('light');
+ let big,info,g;
+ if(pet.kcal){
+  const rer=70*Math.pow(w,.75);let m=age=='adult'?(neu?pet.m.neu:pet.m.adult):pet.m[age];
+  if(body=='fat')m=Math.min(m,.8);if(body=='thin'&&age!='kitten')m=Math.max(m,1.4);
+  const kcal=rer*m;big=`${Math.round(kcal)} <small style='font-size:1rem'>kcal／天</small>`;
+  info=`估算方式：基礎能量 ${Math.round(rer)} kcal × 係數 ${m}`;
+  g=p=>p.always?'牧草不限量供應。':p.k?`若作為主食，每天約 ${Math.round(kcal/p.k*100)} 公克。`:'依包裝建議量搭配。';
+ }else{
+  let pc=pet.pct[age];if(body=='fat')pc*=.85;if(body=='thin')pc*=1.1;
+  const gr=w*1000*pc/100;big=`${gr<10?gr.toFixed(1):Math.round(gr)} <small style='font-size:1rem'>公克／天</small>`;
+  info=`估算方式：顆粒飼料約為體重的 ${pc.toFixed(1)}%。${pet.note}`;
+  g=p=>p.always?'牧草不限量供應。':'主食份量請參考上方每日建議量。';
+ }
+ const pool=P.filter(p=>p.pet==petSel&&!p.off);
+ const sc=pool.filter(p=>!p.addon&&!p.trial).map(p=>{let s=0,why=[];
+  if(p.ages.includes(age)){s+=3;why.push(`適合${AGE[age]}`)}else s-=4;
+  needs.forEach(n=>{if(p.tags.includes(n)){s+=3;why.push(TAG[n])}});
+  if(picky&&p.tags.includes('picky')){s+=2;why.push('適口性佳')}
+  return{p,s,why}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+ const ext=pool.filter(p=>p.addon&&(p.always||(picky&&p.tags.includes('picky'))||needs.some(n=>p.tags.includes(n))));
+ const tr=pool.find(p=>p.trial);
+ const btn=(p,c)=>`<button class='btn ${c||''}' data-add='${p.id}' style='padding:4px 16px'>加入購物車</button>`;
+ $('#out').innerHTML=`<div class='meta'>${pet.kcal?'每日建議熱量':'每日建議飼料量'}</div><div class='kcal'>${big}</div><p class='meta'>${info}</p><h3 style='margin:10px 0 4px'>推薦商品</h3>`+
+ sc.map(({p,why},i)=>`<div class='rec'><b>${i?'':'最適合：'}${p.n}</b> ${money(p.pr)}<div>${[...new Set(why)].map(x=>`<span class='pill'>${x}</span>`).join('')}</div><div class='meta'>${g(p)}</div>${btn(p)}</div>`).join('')+
+ (ext.length?`<h3 style='margin:10px 0 4px'>搭配加碼</h3>`+ext.map(p=>`<div class='rec'><b>${p.n}</b> ${money(p.pr)}<div class='meta'>${g(p)}</div>${btn(p,'alt')}</div>`).join(''):'')+
+ (tr?`<div class='rec'><b>不確定？</b>先買${tr.n} ${money(tr.pr)} ${btn(tr,'alt')}</div>`:'');
+ if(sc[0]){cur=sc[0].p;renderDetail()}
+}
+const AGE={kitten:"幼年",adult:"成年",senior:"高齡"};
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+let filter=null,cur=P[0],cart=[],disc=0,tab=0;
+const money=n=>"$"+Math.round(n).toLocaleString();
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("show"),1600)}
+
+function renderGrid(){
+ let l=P;
+ l=P.filter(p=>!p.off&&(shopPet=="all"||p.pet==shopPet)&&(shopCat=="all"||p.c==shopCat));if(filter){const[k,v]=filter.split(":");l=l.filter(p=>k=="age"?p.ages.includes(v):k=="meat"?p.meat==v:p.tags.includes(v))}
+ $("#fnote").innerHTML=filter?`已篩選：${filter.split(":")[1] in TAG?TAG[filter.split(":")[1]]:AGE[filter.split(":")[1]]||filter.split(":")[1]}，共 ${l.length} 項。 <button class="chip" id="clr">清除篩選</button>`:"顯示全部商品。用上方「商品分類」兩次點擊內篩選。";
+ if($("#clr"))$("#clr").onclick=()=>{filter=null;renderGrid()};
+ $("#grid").innerHTML=l.length?l.map(p=>`<div class="card p"><div class="tile">${pimg(p)}</div><b>${p.n}</b><div>${p.tags.map(t=>`<span class="pill">${TAG[t]}</span>`).join("")}</div><div class="meta">${PETS[p.pet].n}｜${p.meat}｜${p.k?p.k+" kcal/100g":p.u||"配件"}</div><div class="price">${money(p.pr)} <span class='meta'>${stars(p.id)}</span>${stTag(p)}</div><div class="row"><button class="btn" data-add="${p.id}"${stockOf(p)<=0?' disabled':''}>${stockOf(p)<=0?'售完':'加入'}</button><button class="btn alt" data-view="${p.id}">看詳情</button></div></div>`).join(""):"<p>目前沒有符合的商品。</p>";
+}
+function renderDetail(){
+ const p=cur;
+ $("#dName").textContent=p.n;$("#dPrice").innerHTML=money(p.pr)+" "+stTag(p);$("#dAdd").disabled=$("#dSub").disabled=$("#sAdd").disabled=stockOf(p)<=0;$("#sName").textContent=p.n;renderRv();
+ $("#tab0").innerHTML=`<p>${p.d}</p><p class="meta">開罐質地：肉塊與肉汁完整保留。搭配建議：${p.addon?"撒在任何鮮食上，每餐約 1/4 小匙。":"挑嘴時可拌入獨家調味包（海苔鰹魚）。"}</p><div class="stage" style="aspect-ratio:16/7;border-radius:20px;max-width:none"><div style="width:30%">${pimg(p)}</div><span>示範：15 秒開箱影片</span></div>`;
+ $("#tab1").innerHTML=!p.dm?`<p>此商品為${CAT[p.c]}類，沒有營養成分表，規格與安全標示請見包裝。</p>`:`<label class="l">乾物質比（DM）${p.dm}%</label><div class="bar"><i style="width:${p.dm}%"></i></div><label class="l">鈣磷比 ${p.ca} : 1（建議 1.0–1.5）</label><div class="bar"><i style="width:${Math.min(100,p.ca/2*100)}%"></i></div><button class="btn alt" onclick="toast('示範：此處下載 SGS 檢驗報告 PDF')">下載 SGS 檢驗報告</button>`;
+}
+function analyzeOld(){
+ const w=+$("#w").value;if(!(w>0)){$("#out").innerHTML="<p>請輸入貓咪體重（0.5–12 公斤）。</p>";return}
+ const age=$("#age").value,body=$("#body").value,neu=$("#neu").checked,picky=$("#picky").checked;
+ const needs=$$(".need:checked").map(x=>x.value);if(body=="fat")needs.push("light");
+ const rer=70*Math.pow(w,.75);
+ let m=age=="kitten"?2.5:age=="senior"?1.1:neu?1.2:1.4;
+ if(body=="fat")m=Math.min(m,.8);if(body=="thin"&&age!="kitten")m=1.4;
+ const kcal=rer*m;
+ const sc=P.filter(p=>!p.addon&&!p.trial).map(p=>{let s=0,why=[];
+  if(p.ages.includes(age)){s+=3;why.push(`適合${AGE[age]}`)}else s-=4;
+  needs.forEach(n=>{if(p.tags.includes(n)){s+=3;why.push(TAG[n])}});
+  if(picky&&p.tags.includes("picky")){s+=2;why.push("適口性佳")}
+  return{p,s,why}}).filter(x=>x.s>0).sort((a,b)=>b.s-a.s).slice(0,3);
+ $("#out").innerHTML=`<div class="meta">每日建議熱量</div><div class="kcal">${Math.round(kcal)} <small style="font-size:1rem">kcal</small></div><p class="meta">估算方式：基礎能量 ${Math.round(rer)} kcal × 係數 ${m}</p><h3 style="margin:10px 0 4px">推薦商品</h3>`+
+ sc.map(({p,why},i)=>`<div class="rec"><b>${i?"":"最適合："}${p.n}</b> ${money(p.pr)}<div>${[...new Set(why)].map(x=>`<span class="pill">${x}</span>`).join("")}</div><div class="meta">若作為主食，每天約 ${Math.round(kcal/p.k*100)} 公克。</div><button class="btn" data-add="${p.id}" style="padding:4px 16px">加入購物車</button></div>`).join("")+
+ (picky?`<div class="rec"><b>挑嘴加碼：</b>搭配獨家調味包 ${money(120)} <button class="btn alt" data-add="9" style="padding:4px 16px">加入</button></div>`:"")+
+ `<div class="rec"><b>不確定？</b>先買試吃包 ${money(99)} <button class="btn alt" data-add="8" style="padding:4px 16px">加入</button></div>`;
+ cur=sc[0].p;renderDetail();
+}
+function add(id,type){const p=P.find(x=>x.id==id);if(p.trial){type='試吃包';if(!SESS){toast('試吃包限會員領取，請先登入');$('#mb').hidden=false;return}if(TU+trialInCart()+1>TRIAL_MAX){toast(TU>=TRIAL_MAX?'本月試吃包額度已用完，下個月 1 號重新計算':`本月試吃包最多 ${TRIAL_MAX} 份，購物車已有 ${trialInCart()} 份`);return}}{const have=cart.filter(c=>c.id==id).reduce((a,c)=>a+c.q,0),n=stockOf(p);if(have+1>n){toast(n<=0?"這個商品已售完":`庫存只剩 ${n} 件，購物車已有 ${have} 件`);return}}type=type||(p.trial?"試吃包":"單次購");
+ const f=cart.find(c=>c.id==id&&c.type==type);f?f.q++:cart.push({id,type,q:1});renderCart();toast("已加入購物車")}
+function renderCart(){
+ const sub=cart.reduce((s,c)=>{const p=P.find(x=>x.id==c.id);return s+p.pr*c.q*(c.type=="定期購（寄倉）"?.95:1)},0);
+ $("#cnt").textContent=cart.reduce((s,c)=>s+c.q,0);
+ const free=1200,left=free-sub,ship=sub==0||left<=0?0:120;
+ $("#prog").textContent=sub==0?"購物車是空的，滿 $1,200 免運。":left>0?`再買 ${money(left)} 享免運！`:"已達免運門檻。";
+ $("#progBar").style.width=Math.min(100,sub/free*100)+"%";
+ $("#items").innerHTML=cart.map((c,i)=>{const p=P.find(x=>x.id==c.id);return `<div class="item"><div><b>${p.n}</b><br><span class="pill">${c.type}</span> ${money(p.pr*(c.type=="定期購（寄倉）"?.95:1))}</div><div class="q"><button data-q="${i}:-1">−</button> ${c.q} <button data-q="${i}:1">＋</button></div></div>`}).join("");
+ $("#sum").innerHTML=`<div class="item"><span>小計</span><span>${money(sub)}</span></div><div class="item"><span>推薦碼折扣</span><span>−${money(sub?disc:0)}</span></div><div class="item"><span>運費</span><span>${money(ship)}</span></div><div class="item"><b>合計</b><b>${money(Math.max(0,sub-(sub?disc:0)+ship))}</b></div>`;
+}
+document.addEventListener("click",e=>{
+ const t=e.target.closest("button");if(!t)return;
+ if(t.dataset.add)add(t.dataset.add);
+ if(t.dataset.view){cur=P.find(x=>x.id==t.dataset.view);renderDetail();location.hash="#detail"}
+ if(t.dataset.f){filter=t.dataset.f;renderGrid();$("#mm").classList.remove("open");$("#mmBtn").setAttribute("aria-expanded","false");location.hash="#shop"}
+ if(t.dataset.q){const[i,d]=t.dataset.q.split(":");{const c=cart[i],pp=P.find(x=>x.id==c.id),have=cart.filter(x=>x.id==c.id).reduce((a,x)=>a+x.q,0);if(+d>0&&pp.trial&&TU+trialInCart()+1>TRIAL_MAX){toast(`本月試吃包最多 ${TRIAL_MAX} 份`);return}if(+d>0&&have+1>stockOf(pp)){toast(`庫存只剩 ${stockOf(pp)} 件`);return}c.q+=+d;if(c.q<1)cart.splice(i,1);renderCart()}}
+ if(t.dataset.t){tab=+t.dataset.t;$$(".tabs button").forEach(b=>b.setAttribute("aria-selected",b==t));$("#tab0").hidden=tab!=0;$("#tab1").hidden=tab!=1}
+});
+$("#mmBtn").onclick=()=>{const o=$("#mm").classList.toggle("open");$("#mmBtn").setAttribute("aria-expanded",o)};
+$("#go").onclick=analyze;
+$("#dAdd").onclick=()=>add(cur.id);
+$("#dSub").onclick=()=>add(cur.id,"定期購（寄倉）");
+$("#sAdd").onclick=()=>add(cur.id);
+$("#cartBtn").onclick=()=>$("#drawer").classList.add("open");
+$("#close").onclick=()=>$("#drawer").classList.remove("open");
+$("#apply").onclick=()=>{if($("#code").value.trim().toUpperCase()=="MEOW50"){disc=50;toast("已折 $50")}else{disc=0;toast("推薦碼無效")}renderCart()};
+$("#pay").onclick=openCk;
+$("#line").onclick=()=>$("#mLine").click();
+$("#top").textContent=[...P].sort((a,b)=>b.sold-a.sold).slice(0,5).map((p,i)=>`${i+1}. ${p.n}`).join("　");
+/* ===== ABC 分析（賣家後台）：依訂單即時重算 ===== */
+const ABCS={basis:'rev',range:'all',paid:true,a:80,b:95};let abcSig='';
+const abcFmt=v=>ABCS.basis=='rev'?money(v):v+' 件';
+function abcData(){
+ const now=Date.now(),days=ABCS.range=='all'?0:+ABCS.range,m={};
+ ORD.forEach(o=>{if(!o||!Array.isArray(o.items))return;if(days&&!(o.ts>=now-days*864e5))return;if(ABCS.paid&&o.status=='待付款')return;
+  o.items.forEach(i=>{const r=m[i.id]||(m[i.id]={id:i.id,n:i.n,pet:i.pet,q:0,rev:0});r.q+=i.q;r.rev+=i.pr*i.q})});
+ const rows=Object.values(m).map(r=>({...r,v:ABCS.basis=='rev'?r.rev:r.q})).filter(r=>r.v>0).sort((a,b)=>b.v-a.v||b.rev-a.rev),tot=rows.reduce((s,r)=>s+r.v,0);let run=0;
+ rows.forEach(r=>{const before=run/tot*100;run+=r.v;r.share=r.v/tot*100;r.cum=run/tot*100;r.cls=before<ABCS.a?'A':before<ABCS.b?'B':'C';
+  const p=P.find(x=>x.id==r.id);r.st=p?stockOf(p):null;r.off=!!(p&&p.off);if(p){r.n=p.n;r.pet=p.pet}});
+ const ids=new Set(rows.map(r=>String(r.id)));
+ return{rows,tot,idle:P.filter(p=>!p.off&&!ids.has(String(p.id)))}}
+function abcChart(rows){
+ const L=rows.slice(0,30),n=L.length,W=640,H=250,pl=44,pr=40,pt=12,pb=46,iw=W-pl-pr,ih=H-pt-pb,bw=iw/n,mx=Math.max(...L.map(r=>r.v));
+ let s=`<svg viewBox='0 0 ${W} ${H}' role='img' aria-label='ABC 柏拉圖：長條為各商品${ABCS.basis=='rev'?'營收':'銷量'}，折線為累計占比' style='width:100%;height:auto;display:block'>`;
+ [0,25,50,75,100].forEach(p=>{const y=pt+ih*(1-p/100);s+=`<line x1='${pl}' x2='${W-pr}' y1='${y}' y2='${y}' stroke='var(--line)'${p%100?" stroke-dasharray='3 3'":''}/><text class='abT' x='${W-pr+4}' y='${y+3}'>${p}%</text>`});
+ s+=`<text class='abT' x='${pl-5}' y='${pt+8}' text-anchor='end'>${ABCS.basis=='rev'?money(mx):mx}</text><text class='abT' x='${pl-5}' y='${pt+ih}' text-anchor='end'>0</text>`;
+ [[ABCS.a,'A'],[ABCS.b,'B']].forEach(([v,k])=>{const y=pt+ih*(1-v/100);s+=`<line x1='${pl}' x2='${W-pr}' y1='${y}' y2='${y}' stroke='var(--accent)' stroke-width='1' stroke-dasharray='6 4'/><text class='abT' x='${W-pr-3}' y='${y-3}' text-anchor='end' style='fill:var(--accent)'>${k} 門檻 ${v}%</text>`});
+ const pts=[];
+ L.forEach((r,i)=>{const h=Math.max(1,r.v/mx*ih),x=pl+i*bw+bw*.14,w=bw*.72;
+  s+=`<rect class='abBar${r.cls}' x='${x.toFixed(1)}' y='${(pt+ih-h).toFixed(1)}' width='${w.toFixed(1)}' height='${h.toFixed(1)}' rx='2'><title>${i+1}. ${esc(r.n)}｜${r.cls} 類｜${abcFmt(r.v)}｜累計 ${r.cum.toFixed(1)}%</title></rect>`;
+  pts.push(`${(x+w/2).toFixed(1)},${(pt+ih*(1-r.cum/100)).toFixed(1)}`);
+  if(n<=15||i%Math.ceil(n/15)==0)s+=`<text class='abT' x='${(x+w/2).toFixed(1)}' y='${H-pb+13}' text-anchor='middle'>${i+1}</text>`});
+ s+=`<polyline class='abL' points='${pts.join(' ')}'/>`+pts.map(p=>{const[x,y]=p.split(',');return`<circle cx='${x}' cy='${y}' r='2.5' fill='var(--ink)'/>`}).join('');
+ s+=`<text class='abT' x='${pl+iw/2}' y='${H-6}' text-anchor='middle'>商品排名（由高到低）</text></svg>`;
+ return `<div class='tw' style='margin-top:0'><div style='min-width:520px'>${s}</div></div>`+(rows.length>30?`<p class='meta'>圖表只畫前 30 名，完整名單見下表。</p>`:'')}
+function abcAdvice(r){
+ if(r.off)return r.cls=='C'?'已下架':'已下架，若仍熱賣可考慮重新上架';
+ if(r.cls=='A')return r.st!=null&&r.st<=LOW?`⚠ 庫存只剩 ${r.st} 件，優先補貨`:'主力商品：維持庫存、放在顯眼位置';
+ if(r.cls=='B')return '穩定商品：可搭配促銷或組合販售拉升';
+ return '貢獻較低：評估促銷、組合販售或減少備貨'}
+function renderAbc(){
+ const box=$('#abcOut'),adm=$('#admin');if(!box||!adm||adm.hidden)return;
+ const{rows,idle}=abcData();
+ $('#abcAt').textContent='最後更新 '+new Date().toLocaleTimeString('zh-TW',{hour12:false});
+ const sig=JSON.stringify([ABCS,rows.map(r=>[r.id,r.v,r.cls,r.st,r.off]),idle.length]);
+ if(sig==abcSig)return;abcSig=sig;
+ if(!rows.length){box.innerHTML=`<p class='meta'>這個條件下還沒有銷售資料。有訂單後這裡會自動分級。</p>`;return}
+ const g={A:[],B:[],C:[]};rows.forEach(r=>g[r.cls].push(r));const bas=ABCS.basis=='rev'?'營收':'銷量';
+ const sum=['A','B','C'].map(k=>{const n=g[k].length,sh=g[k].reduce((s,r)=>s+r.share,0);return`<div><span class='abc ${k}'>${k}</span> <b>${n} 項</b><div class='meta'>占已售商品 ${Math.round(n/rows.length*100)}%｜貢獻 ${sh.toFixed(1)}% ${bas}</div></div>`}).join('');
+ const aSh=g.A.reduce((s,r)=>s+r.share,0),low=g.A.filter(r=>r.st!=null&&r.st<=LOW);
+ const pn=r=>(PETS[r.pet]?PETS[r.pet].n:'');
+ box.innerHTML=`<div class='abcSum'>${sum}</div>`+
+  `<p style='margin:6px 0'>${g.A.length?`只有 <b>${g.A.length}</b> 項（${Math.round(g.A.length/rows.length*100)}% 的已售商品）就貢獻了 <b>${aSh.toFixed(1)}%</b> 的${bas}。`:''}另有 ${idle.length} 項上架商品在這個條件下沒有銷售。</p>`+
+  (low.length?`<p class='abcWarn'>⚠ A 類有 ${low.length} 項庫存偏低：${low.map(r=>esc(r.n)).join('、')}</p>`:'')+
+  abcChart(rows)+
+  `<div class='tw' style='max-height:420px;overflow:auto'><table><thead><tr><th>排名</th><th>商品</th><th>等級</th><th>銷量</th><th>營收</th><th>占比</th><th>累計</th><th>庫存</th><th>建議</th></tr></thead><tbody>`+
+  rows.map((r,i)=>`<tr><td>${i+1}</td><td>${esc(r.n)} <span class='meta'>${pn(r)}</span></td><td><span class='abc ${r.cls}'>${r.cls}</span></td><td>${r.q}</td><td>${money(r.rev)}</td><td>${r.share.toFixed(1)}%</td><td>${r.cum.toFixed(1)}%</td><td>${r.st==null?'—':r.st<=0?'售完':r.st<=LOW?r.st+' 偏低':r.st}</td><td>${abcAdvice(r)}</td></tr>`).join('')+
+  `</tbody></table></div>`}
+document.addEventListener('click',e=>{const t=e.target.closest('button[data-abc]');if(!t)return;const[k,v]=t.dataset.abc.split(':');ABCS[k]=v;$$(`button[data-abc^='${k}:']`).forEach(b=>b.classList.toggle('on',b==t));renderAbc()});
+document.addEventListener('change',e=>{const t=e.target;
+ if(t.id=='abcPaid'){ABCS.paid=t.checked;renderAbc()}
+ if(t.id=='abcA'||t.id=='abcB'){const a=Math.round(+$('#abcA').value),b=Math.round(+$('#abcB').value);
+  if(!(a>=1&&b<=99&&a<b)){toast('請輸入 1–99，且 A 要小於 B');$('#abcA').value=ABCS.a;$('#abcB').value=ABCS.b;return}ABCS.a=a;ABCS.b=b;renderAbc()}});
+$('#abcCsv').onclick=()=>{const{rows}=abcData();if(!rows.length){toast('目前沒有資料可匯出');return}
+ const h=[['排名','商品','寵物','等級','銷量','營收','占比%','累計%','庫存']];
+ rows.forEach((r,i)=>h.push([i+1,r.n,PETS[r.pet]?PETS[r.pet].n:'',r.cls,r.q,r.rev,r.share.toFixed(1),r.cum.toFixed(1),r.st==null?'':r.st]));
+ const csv='\ufeff'+h.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='abc-analysis.csv';a.click()};
+
+/* ===== AI 顧問（顧客端）：有 AI 服務時走 Claude，否則用內建規則對話 ===== */
+const AIC={msgs:[],busy:false,useProfile:false,fail:0,mode:'',s:null};
+const aiBlank=()=>({pet:null,age:null,w:null,needs:[],avoid:[],budget:null,cat:null});
+const aiUrl=()=>{const c=window.MEOW_CONFIG||{};if(c.aiUrl)return c.aiUrl;if(SB&&c.supabaseUrl)return c.supabaseUrl.replace(/\/$/,'')+'/functions/v1/ai-chat';return''};
+const aiFmt=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/\n/g,'<br>');
+const AI_GREET={r:'ai',g:1,t:'嗨～我是肉球日常的 AI 顧問 🐾\n告訴我毛孩是誰（貓、狗、兔、鳥…）、幾歲、有什麼困擾，我幫你挑適合的商品。',chips:['我家是貓','我家是狗','挑嘴不愛吃飯','想幫毛孩減重','先試吃再決定']};
+function aiReset(){AIC.msgs=[AI_GREET];AIC.s=aiBlank();AIC.fail=0;AIC.mode='';AIC.useProfile=false;aiRender()}
+function aiProfile(){const pet=PETS[petSel];return{pet:petSel,petName:pet.n,weight:+$('#w').value||null,age:$('#age').value,body:$('#body').value,neutered:pet.kcal?$('#neu').checked:null,picky:$('#picky').checked,needs:$$('.need:checked').map(x=>x.value)}}
+function aiTakeProfile(){const f=aiProfile();if(AIC.s.pet!=f.pet){const b=AIC.s.budget;AIC.s=aiBlank();AIC.s.budget=b}const t=AIC.s;t.pet=f.pet;t.age=f.age;t.w=f.weight;
+ t.needs=[...new Set([...t.needs,...f.needs,...(f.picky?['picky']:[]),...(f.body=='fat'&&PETS[f.pet].kcal?['light']:[])])]}
+function aiCard(id){const p=P.find(x=>x.id==id);if(!p||p.off)return'';const out=stockOf(p)<=0;
+ return `<div class='aiP'><div class='aiT'>${pimg(p)}</div><div style='flex:1;min-width:0'><b style='font-size:.9rem'>${esc(p.n)}</b><div class='meta'>${PETS[p.pet].n}｜${money(p.pr)}${stTag(p)}</div></div><div class='aiB'><button class='btn' data-add='${p.id}'${out?' disabled':''}>${out?'售完':'加入'}</button><button class='btn alt' data-view='${p.id}'>詳情</button></div></div>`}
+function aiRender(){
+ const log=$('#aiLog');if(!log)return;const last=AIC.msgs[AIC.msgs.length-1],url=aiUrl();
+ log.innerHTML=AIC.msgs.map(m=>m.r=='user'?`<div class='aiM u'>${esc(m.t)}</div>`:`<div class='aiM a'>${aiFmt(m.t)}${(m.ids||[]).map(aiCard).join('')}${m.note?`<div class='meta' style='margin-top:6px'>${esc(m.note)}</div>`:''}</div>`).join('')+(AIC.busy?`<div class='aiM a meta'>思考中…</div>`:'');
+ $('#aiBar').innerHTML=`<button class='chip${AIC.useProfile?' on':''}' id='aiProf' title='把「毛孩適配分析」表單目前的選項帶進對話'>📋 ${AIC.useProfile?'已帶入分析區資料':'帶入分析區資料'}</button>`+(!AIC.busy&&last&&last.r=='ai'?(last.chips||[]).map(c=>`<button class='chip' data-qr='${esc(c)}'>${esc(c)}</button>`).join(''):'');
+ $('#aiMode').textContent=(url&&AIC.fail<2&&AIC.mode!='local')?'AI 模式（Claude）':'基本模式（依你的條件配對商品）';
+ log.scrollTop=log.scrollHeight}
+async function aiRemote(url){
+ const c=window.MEOW_CONFIG||{};let tok=c.supabaseKey;try{const s=(await SB.auth.getSession()).data.session;if(s)tok=s.access_token}catch(e){}
+ const hist=AIC.msgs.filter(m=>!m.g).slice(-12).map(m=>({role:m.r=='user'?'user':'assistant',content:m.t})),ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),30000);
+ try{const r=await fetch(url,{method:'POST',signal:ctl.signal,headers:{'Content-Type':'application/json',apikey:c.supabaseKey||'',Authorization:'Bearer '+(tok||'')},body:JSON.stringify({messages:hist,profile:AIC.useProfile?aiProfile():null})});
+  if(!r.ok)throw new Error('http '+r.status);const j=await r.json();if(!j||typeof j.reply!='string'||!j.reply.trim())throw new Error('empty');
+  const ids=[],chips=[];
+  const t=j.reply.replace(/\[\[rec:([\d,\s]*)\]\]/g,(_,s)=>{s.split(',').forEach(x=>{x=+x;if(x&&!ids.includes(x))ids.push(x)});return''}).replace(/\[\[chips:([^\]]*)\]\]/g,(_,s)=>{s.split('|').forEach(x=>{x=x.trim().slice(0,16);if(x&&chips.length<3)chips.push(x)});return''}).trim();
+  return{t:t||'（沒有回覆內容，請換個說法再問一次）',ids:ids.filter(i=>P.some(p=>p.id==i)).slice(0,4),chips}
+ }finally{clearTimeout(to)}}
+/* --- 內建規則對話（沒有 AI 服務、或 AI 連不上時使用）--- */
+const MEATK={'火雞':'火雞','雞':'雞肉','牛':'牛肉','羊':'羊肉','鴨':'鴨肉','鮭魚':'鮭魚','魚':'鮭魚'};
+const NEEDK={urinary:/泌尿|尿路|結石|尿結晶|膀胱|喝水少|不愛喝水/,skin:/皮膚|掉毛|毛躁|毛色|毛髮|亮毛|癢|皮屑/,digest:/腸胃|軟便|拉肚子|腹瀉|便秘|脹氣|消化|換食/,joint:/關節|行動|爬樓梯|跳不上|髖|老化/,light:/減重|減肥|過胖|太胖|變胖|體重管理|瘦身|偏胖|肥/,picky:/挑嘴|偏食|不愛吃|不肯吃|食慾|挑食/,dental:/牙|口臭|牙結石|牙垢|磨牙/,fiber:/高纖|纖維|牧草|便便小/};
+function aiLearn(raw){
+ let t=raw,s=AIC.s;const snap=JSON.stringify(s);
+ const pm=[[/天竺鼠|豚鼠/,'guinea'],[/倉鼠|黃金鼠|楓葉鼠/,'hamster'],[/兔/,'rabbit'],[/鳥|鸚鵡|文鳥|玄鳳|牡丹/,'bird'],[/狗|犬|汪/,'dog'],[/貓|喵/,'cat']];
+ let best=null,bi=1e9;pm.forEach(([re,k])=>{const i=t.search(re);if(i>=0&&i<bi){bi=i;best=k}});
+ if(best&&best!=s.pet){const b=s.budget;s=AIC.s=aiBlank();s.budget=b;s.pet=best}
+ const am=t.match(/(\d+(?:\.\d+)?)\s*(歲|個月|月大)/);if(am){const n=+am[1];s.age=am[2]=='歲'?(n>=8?'senior':n<=1?'kitten':'adult'):'kitten'}
+ if(/幼(貓|犬|狗|兔|鼠|鳥|年)|小(貓|狗|兔|鳥)|奶貓|奶狗|剛斷奶|剛出生/.test(t))s.age='kitten';
+ if(/高齡|老(貓|狗|犬|兔|鼠|鳥|了|年)|senior|銀髮/i.test(t))s.age='senior';
+ if(/成(貓|犬|狗|兔|年)/.test(t))s.age='adult';
+ const wm=t.match(/(\d+(?:\.\d+)?)\s*(?:kg|公斤)/i);if(wm)s.w=+wm[1];
+ const av=r=>{for(const m of t.matchAll(r)){const k=MEATK[m[1]];if(k&&!s.avoid.includes(k))s.avoid.push(k)}t=t.replace(r,' ')};
+ av(/(?:對|不要|不吃|不想要|不想|避開|排除)\s*(火雞|雞|牛|羊|鴨|鮭魚|魚)(?:肉)?/g);av(/(火雞|雞|牛|羊|鴨|鮭魚|魚)(?:肉)?過敏/g);
+ for(const k in NEEDK)if(NEEDK[k].test(t)&&!s.needs.includes(k))s.needs.push(k);
+ const bm=t.match(/(?:預算|不超過|低於|最多)\D{0,4}(\d{2,5})/)||t.match(/(\d{2,5})\s*(?:元|塊)?\s*(?:以內|以下|內)/);if(bm)s.budget=+bm[1];
+ if(/零食|點心|獎勵/.test(t))s.cat='snack';else if(/保健|益生菌|魚油|營養品/.test(t))s.cat='health';else if(/用品|玩具|貓砂|牽繩|飲水/.test(t))s.cat='supply';else if(/主食|鮮食|飼料|吃的/.test(t))s.cat='food';
+ if(/重新開始|重來|換一隻|清空條件/.test(t)){AIC.s=aiBlank();return true}
+ return JSON.stringify(s)!=snap}
+function aiPick(s,cat,limit){
+ let pool=P.filter(p=>!p.off&&p.pet==s.pet&&stockOf(p)>0&&p.c==cat&&!p.trial&&(cat!='food'||!p.addon));
+ pool=pool.filter(p=>!s.avoid.includes(p.meat));let relaxed=false;
+ if(s.budget){const b=pool.filter(p=>p.pr<=s.budget);if(b.length)pool=b;else if(pool.length)relaxed=true}
+ const sc=pool.map(p=>{let x=0;const why=[];
+  if(s.age&&cat=='food'){if(p.ages.includes(s.age)){x+=3;why.push('適合'+AGE[s.age])}else x-=4}
+  s.needs.forEach(n=>{if(p.tags.includes(n)){x+=3;why.push(TAG[n])}});
+  x+=Math.min(1,(p.sold||0)/1000);return{p,x,why}}).filter(o=>o.x>0).sort((a,b)=>b.x-a.x).slice(0,limit);
+ return{items:sc,relaxed}}
+function aiNeed(s,p){const pet=PETS[s.pet];if(!s.w||!(s.w>=pet.min&&s.w<=pet.max))return'';const age=s.age||'adult';
+ if(pet.kcal){const k=70*Math.pow(s.w,.75)*(age=='adult'?pet.m.neu:pet.m[age]);return `以${AGE[age]}${pet.n} ${s.w} 公斤估算（成年以已結紮係數計），每天約 ${Math.round(k)} kcal${p&&p.k?`；若以「${p.n}」當主食，約 ${Math.round(k/p.k*100)} 公克`:''}。這只是估算，請依毛孩實際體態微調。`}
+ const g=s.w*1000*pet.pct[age]/100;return `顆粒飼料每天約 ${g<10?g.toFixed(1):Math.round(g)} 公克（體重的 ${pet.pct[age]}%），估算值，請依實際狀況調整。`}
+function aiDesc(s){return `${s.age?AGE[s.age]:''}${PETS[s.pet].n}${s.w?`（${s.w} 公斤）`:''}${s.needs.length?`，在意${s.needs.map(n=>TAG[n]).join('、')}`:''}${s.avoid.length?`，避開${s.avoid.join('、')}`:''}${s.budget?`，單價預算 ${money(s.budget)} 內`:''}`}
+function aiLocal(text,changed){
+ const s=AIC.s,out=[],asks=['我家是貓','我家是狗','我家是兔子','我家是鳥'];let ids=[],chips=[];
+ const flag=/血尿|尿不出|一直吐|嘔吐|抽搐|癲癇|昏睡|拉血|血便|誤食|中毒|呼吸困難|呼吸急促|兩天沒吃|三天沒吃|好幾天不吃/.test(text);
+ if(flag)out.push('⚠️ 你描述的狀況可能比較急，建議先盡快帶毛孩給獸醫師檢查，不要等飲食調整。確認沒問題後，我再幫你挑適合的商品。');
+ const info=/運費|免運|配送|宅配/.test(text),sub=/定期|訂閱/.test(text),trial=/試吃/.test(text);
+ if(info)out.push('運費規則：整張訂單滿 $1,200 免運，未滿收 $120。鮮食走冷凍宅配。');
+ if(sub)out.push('定期購（寄倉）享 95 折：在商品詳情頁按「改為定期購」就能加入購物車。');
+ if(!s.pet){out.push(out.length?'想讓我幫忙挑商品的話，先告訴我毛孩是哪一種吧？':'先告訴我毛孩是哪一種吧？貓、狗、兔、天竺鼠、倉鼠、鳥都可以。');return{t:out.join('\n\n'),chips:asks}}
+ if(trial){const tr=P.find(p=>p.pet==s.pet&&p.trial&&!p.off);out.push(tr?`${PETS[s.pet].n}有試吃包「${tr.n}」，會員每月最多領 2 份，先試口味再決定很安心。`:`${PETS[s.pet].n}目前沒有試吃包，可以先挑小包裝的商品試試。`);if(tr)ids.push(tr.id)}
+ const ask=/推薦|幫我|主食|零食|保健|用品|鮮食|飼料/.test(text);
+ if(flag){return{t:out.join('\n\n'),ids,chips:['好，先幫我看主食推薦']}}
+ if(changed||ask||(!info&&!sub&&!trial)){
+  const cat=s.cat||'food',r=aiPick(s,cat,3),cn=cat=='food'?'主食':CAT[cat];
+  if(!changed&&!ask&&!out.length)return{t:'我不太確定你的意思。可以說說毛孩的年齡、困擾（例如軟便、挑嘴、關節、減重…），或想看零食、保健、用品。',chips:['牠是成年','軟便又挑嘴','看零食推薦','看保健品']};
+  if(!r.items.length)out.push(`了解～${aiDesc(s)}。\n不過目前找不到完全符合的${cn}（可能是過敏肉種、預算限制太多，或已售完）。放寬一項條件再試試？`),chips=['重新開始'];
+  else{
+   out.push(`了解～${aiDesc(s)}。\n我挑了這幾款${cn}給你：\n`+r.items.map((o,i)=>`${i+1}. **${o.p.n}**（${[...new Set(o.why)].join('、')||'熱銷人氣款'}）`).join('\n')+(r.relaxed?'\n\n（預算內沒有符合的商品，這是最接近的選擇。）':''));
+   const nd=cat=='food'?aiNeed(s,r.items[0].p):'';if(nd)out.push(nd);
+   r.items.forEach(o=>{if(!ids.includes(o.p.id))ids.push(o.p.id)})}
+  if(r.items.length){
+   if(!s.age){out.push('牠大約幾歲呢？（幼年、成年、高齡的配方不太一樣）');chips=['牠是幼年','牠是成年','牠是高齡']}
+   else if(PETS[s.pet].kcal&&!s.w&&cat=='food'){out.push('體重大概幾公斤？我可以幫你算每天的份量。');chips=['看零食推薦','看保健品','看試吃包']}
+   else{const miss=[!s.avoid.length&&'有沒有對哪種肉過敏',!s.budget&&'單價預算上限大概多少'].filter(Boolean);
+    out.push(miss.length?`想再精準一點的話，告訴我${miss.join('、')}？也可以看看零食、保健或用品。`:'還想看零食、保健或用品搭配嗎？');
+    chips=[...(cat=='food'?[]:['回到主食推薦']),...(s.budget?[]:['預算 500 以內']),...(s.avoid.length?[]:['對雞肉過敏']),'看零食推薦','看保健品','看試吃包'].slice(0,4)}}}
+ else if(!chips.length)chips=['看主食推薦','看零食推薦','看保健品'];
+ return{t:out.join('\n\n'),ids,chips}}
+async function aiSend(text){
+ text=(text||'').trim().slice(0,500);if(!text||AIC.busy)return;
+ AIC.msgs.push({r:'user',t:text});const changed=aiLearn(text);AIC.busy=true;aiRender();
+ let res=null,note='';const url=aiUrl();
+ if(url&&AIC.fail<2){try{res=await aiRemote(url);AIC.fail=0;AIC.mode='ai'}catch(e){AIC.fail++;note=AIC.fail<2?'AI 暫時連不上，這次先用基本模式回覆。':'AI 目前無法使用，已切換為基本模式。'}}
+ if(!res){await new Promise(r=>setTimeout(r,350));res=aiLocal(text,changed);AIC.mode='local'}
+ AIC.msgs.push({r:'ai',t:res.t,ids:res.ids||[],chips:res.chips||[],note});AIC.busy=false;aiRender()}
+function aiOpen(){$('#aiBox').hidden=false;$('#aiFab').hidden=true;if(!AIC.msgs.length)aiReset();else aiRender();setTimeout(()=>$('#aiTx').focus({preventScroll:true}),30)}
+function aiClose(){$('#aiBox').hidden=true;$('#aiFab').hidden=false}
+function aiGo(){const tx=$('#aiTx'),v=tx.value;tx.value='';tx.style.height='';aiSend(v)}
+$('#aiFab').onclick=$('#aiOpen2').onclick=aiOpen;$('#aiX').onclick=aiClose;$('#aiReset').onclick=aiReset;$('#aiSend').onclick=aiGo;
+$('#aiTx').addEventListener('keydown',e=>{if(e.key=='Enter'&&!e.shiftKey&&!e.isComposing){e.preventDefault();aiGo()}});
+$('#aiTx').addEventListener('input',e=>{const t=e.target;t.style.height='auto';t.style.height=Math.min(96,t.scrollHeight)+'px'});
+document.addEventListener('keydown',e=>{if(e.key=='Escape'&&!$('#aiBox').hidden)aiClose()});
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;
+ if(t.dataset.qr)aiSend(t.dataset.qr);
+ if(t.id=='aiProf'){AIC.useProfile=!AIC.useProfile;if(AIC.useProfile){aiTakeProfile();toast('已帶入分析區的毛孩資料')}aiRender()}
+ if(t.dataset.view&&t.closest('#aiBox'))aiClose()});
+
+renderCats();renderTabs();setPet("cat",false);renderDetail();renderCart();initMember();initSeller();initBackend();
+</script>
+</body>
+</html>
