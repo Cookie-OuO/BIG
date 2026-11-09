@@ -445,12 +445,12 @@ const sbMsg=e=>{const m=(e&&e.message)||'';return/invalid login/i.test(m)?'Email
 async function sbApply(sess){const u=sess&&sess.user;if((u?u.id:null)===UID&&(u?SESS:true))return;
  UID=u?u.id:null;OWNER=false;
  if(!u){SESS=null;try{localStorage.removeItem(SK)}catch(e){}renderMem();TU=0;renderTrial();return}
- try{const r=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();if(r.error)console.error('admins check failed',r.error);OWNER=!!r.data;console.info('[meow] uid',u.id,'seller:',OWNER)}catch(e){console.error('admins check failed',e)}
+ try{const r=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();OWNER=!!r.data}catch(e){}
  await syncMembers();const email=(u.email||'').toLowerCase();
  if(!mget().some(x=>x.email==email))save({email,name:(u.user_metadata&&u.user_metadata.name)||email.split('@')[0],points:0,pets:[],role:'buyer'});
  {const a=mget(),i=a.findIndex(x=>x.email==email);a[i].role=OWNER?'seller':'buyer';a[i].owner=UID;mset(a)}
  login(email);
- if(OWNER){showAdmin(true);if(!sbOrdersOn){sbOrdersOn=true;DB.collection('orders').onSnapshot(s=>{ORD=s.docs.flatMap(d=>d.data().list||[]);renderAdmin()},e=>console.error('orders load failed',e))}}}
+ if(OWNER){showAdmin(true);if(!sbOrdersOn){sbOrdersOn=true;DB.collection('orders').onSnapshot(s=>{ORD=s.docs.flatMap(d=>d.data().list||[]);renderAdmin()},()=>{})}}}
 let sbOrdersOn=false;
 async function sbInit(){const c=window.MEOW_CONFIG;SB=window.supabase.createClient(c.supabaseUrl,c.supabaseKey);DB=sbDb(SB);
  const iv=$('#mInv');if(iv)(iv.closest('label')||iv).hidden=true;$('#mLine').hidden=true;
@@ -696,7 +696,7 @@ let SESS=null,AMODE='login';const MK='mj_members',SK='mj_session';
 const mget=()=>{try{return JSON.parse(localStorage.getItem(MK)||'[]')}catch(e){return[]}};
 const mset=a=>{try{localStorage.setItem(MK,JSON.stringify(a))}catch(e){}pushMem()};
 let PT=null;
-function pushMem(){if(!DB||!UID)return;clearTimeout(PT);PT=setTimeout(async()=>{const l=mget().filter(m=>m.owner===UID);try{await DB.doc('members/'+UID).set({accounts:l})}catch(e){console.error('members sync failed',e);toast('會員資料同步失敗：'+((e&&(e.message||e.code))||'未知錯誤'))}},400)}
+function pushMem(){if(!DB||!UID)return;clearTimeout(PT);PT=setTimeout(async()=>{const l=mget().filter(m=>m.owner===UID);try{await DB.doc('members/'+UID).set({accounts:l})}catch(e){toast('會員資料同步失敗')}},400)}
 async function syncMembers(){if(!DB||!UID)return;
  try{const s=await DB.doc('members/'+UID).get(),a=mget();let ch=false;
   if(s.exists)(s.data().accounts||[]).forEach(r=>{const i=a.findIndex(x=>x.email==r.email);if(i<0){a.push(r);ch=true}else if(JSON.stringify(a[i])!==JSON.stringify(r)){a[i]=r;ch=true}});
@@ -837,7 +837,7 @@ function analyze(){
  $('#out').innerHTML=`<div class='meta'>${pet.kcal?'每日建議熱量':'每日建議飼料量'}</div><div class='kcal'>${big}</div><p class='meta'>${info}</p><h3 style='margin:10px 0 4px'>推薦商品</h3>`+
  sc.map(({p,why},i)=>`<div class='rec'><b>${i?'':'最適合：'}${p.n}</b> ${pmoney(p)}<div>${[...new Set(why)].map(x=>`<span class='pill'>${x}</span>`).join('')}</div><div class='meta'>${g(p)}</div>${btn(p)}</div>`).join('')+
  (ext.length?`<h3 style='margin:10px 0 4px'>搭配加碼</h3>`+ext.map(p=>`<div class='rec'><b>${p.n}</b> ${pmoney(p)}<div class='meta'>${g(p)}</div>${btn(p,'alt')}</div>`).join(''):'')+
- (tr?`<div class='rec'><b>不確定？</b>先買${tr.n} ${money(tr.pr)} ${btn(tr,'alt')}</div>`:'');
+ (tr?`<div class='rec'><b>不確定？</b>先免費領${tr.n}（${pmoney(tr)}、免運費） ${btn(tr,'alt')}</div>`:'');
  if(sc[0]){cur=sc[0].p;renderDetail()}
 }
 const AGE={kitten:"幼年",adult:"成年",senior:"高齡"};
@@ -876,7 +876,7 @@ function analyzeOld(){
  $("#out").innerHTML=`<div class="meta">每日建議熱量</div><div class="kcal">${Math.round(kcal)} <small style="font-size:1rem">kcal</small></div><p class="meta">估算方式：基礎能量 ${Math.round(rer)} kcal × 係數 ${m}</p><h3 style="margin:10px 0 4px">推薦商品</h3>`+
  sc.map(({p,why},i)=>`<div class="rec"><b>${i?"":"最適合："}${p.n}</b> ${pmoney(p)}<div>${[...new Set(why)].map(x=>`<span class="pill">${x}</span>`).join("")}</div><div class="meta">若作為主食，每天約 ${Math.round(kcal/p.k*100)} 公克。</div><button class="btn" data-add="${p.id}" style="padding:4px 16px">加入購物車</button></div>`).join("")+
  (picky?`<div class="rec"><b>挑嘴加碼：</b>搭配獨家調味包 ${money(120)} <button class="btn alt" data-add="9" style="padding:4px 16px">加入</button></div>`:"")+
- `<div class="rec"><b>不確定？</b>先買試吃包 ${money(99)} <button class="btn alt" data-add="8" style="padding:4px 16px">加入</button></div>`;
+ `<div class="rec"><b>不確定？</b>先免費領試吃包（免費、免運費） <button class="btn alt" data-add="8" style="padding:4px 16px">加入</button></div>`;
  cur=sc[0].p;renderDetail();
 }
 function add(id,type){const p=P.find(x=>x.id==id);if(p.trial){type='試吃包';if(!SESS){toast('試吃包限會員領取，請先登入');$('#mb').hidden=false;return}if(TU+trialInCart()+1>TRIAL_MAX){toast(TU>=TRIAL_MAX?'本月試吃包額度已用完，下個月 1 號重新計算':`本月試吃包最多 ${TRIAL_MAX} 份，購物車已有 ${trialInCart()} 份`);return}}{const have=cart.filter(c=>c.id==id).reduce((a,c)=>a+c.q,0),n=stockOf(p);if(have+1>n){toast(n<=0?"這個商品已售完":`庫存只剩 ${n} 件，購物車已有 ${have} 件`);return}}type=type||(p.trial?"試吃包":"單次購");
