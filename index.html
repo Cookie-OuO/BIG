@@ -279,6 +279,7 @@ footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30
 <div class="toast" id="toast"></div>
 
 <script src="config.js"></script>
+<script src="product-images.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const P=[
@@ -628,7 +629,8 @@ const IK='mj_img';
 function imgMap(){return Object.fromEntries(P.filter(p=>p.img).map(p=>[p.id,p.img]))}
 async function loadImgs(){let done=false;
  try{if(DB){const q=await DB.collection('productimgs').get();q.docs.forEach(d=>{const p=P.find(x=>x.id==d.id),v=d.data();if(p&&v&&v.img)p.img=v.img});done=q.docs.length>0}}catch(e){}
- if(!done){try{const m=JSON.parse(localStorage.getItem(IK)||'null');if(m)P.forEach(p=>{if(m[p.id])p.img=m[p.id]})}catch(e){}}}
+ if(!done){try{const m=JSON.parse(localStorage.getItem(IK)||'null');if(m)P.forEach(p=>{if(m[p.id])p.img=m[p.id]})}catch(e){}}
+ try{const M=window.MEOW_IMGS||{};P.forEach(p=>{if(!p.img&&M[p.id])p.img=M[p.id]})}catch(e){}}
 async function saveImg(p){try{if(DB&&OWNER){const r=DB.doc('productimgs/'+p.id);if(p.img)await r.set({img:p.img});else await r.delete()}else localStorage.setItem(IK,JSON.stringify(imgMap()))}catch(e){toast('圖片儲存失敗，可能是容量不足');return false}return true}
 const shrink=f=>new Promise((ok,no)=>{const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=no;im.onload=()=>{const S=480,k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.78))};im.src=r.result};r.readAsDataURL(f)});
 async function saveCatalog(){const c={off:P.filter(p=>p.off).map(p=>p.id),price:Object.fromEntries(P.filter(p=>p.pr!=p.pr0).map(p=>[p.id,p.pr])),stock:Object.fromEntries(P.filter(p=>p.st!=null).map(p=>[p.id,p.st])),extra:P.filter(p=>p.id>=1000).map(({img,...o})=>o)};
