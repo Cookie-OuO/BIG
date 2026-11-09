@@ -49,7 +49,7 @@ input[type=number],select{width:100%;padding:9px 12px;border-radius:12px;border:
 .abc{display:inline-block;min-width:24px;text-align:center;border-radius:8px;padding:1px 8px;font-weight:800;font-size:.82rem;color:#fff}.abc.A{background:var(--accent)}.abc.B{background:var(--abcB);color:#1d1a14}.abc.C{background:var(--abcC)}
 .abcCtl{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin:10px 0}.abcCtl label{display:flex;align-items:center;gap:6px}
 .abcTiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:12px 0}.abcTiles>div{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg);min-width:0}.abcTiles b{font-size:1.3rem}
-.abcAl{border-radius:12px;padding:10px 14px;margin:8px 0;background:var(--warnbg);color:var(--warn);font-size:.92rem}.abcAl.info{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.abcAl{border-radius:12px;padding:10px 14px;margin:8px 0;background:var(--warnbg);color:var(--warn);font-size:.92rem}.abcAl.info{background:var(--bg);color:var(--ink);border:1px solid var(--line)}.abcRecH{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:16px 0 6px}.abcRecH h3{font-size:1.05rem}.abcAl .rb{margin-top:4px;line-height:1.8}
 .pareto{width:100%;height:auto;max-height:260px}.pareto text{fill:var(--muted);font-size:10px}
 #aiBtn{position:fixed;right:16px;bottom:calc(84px + env(safe-area-inset-bottom,0px));z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 @media(min-width:761px){#aiBtn{bottom:24px}}
@@ -211,7 +211,7 @@ footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30
  <div class="card" id="abcCard" style="margin-top:16px"><h3>ABC 分析（商品貢獻度）</h3>
   <p class="meta">依後台訂單資料自動計算，有新訂單、改狀態、改庫存就會即時更新。A 類是貢獻最高的主力商品，B 類次之，C 類貢獻低或沒有銷售。</p>
   <div class="abcCtl"><label>分析依據 <select id="abcM" class="fi"><option value="rev">營收</option><option value="qty">銷量（件數）</option></select></label><label>A 類累計到 <input id="abcA" class="fi" type="number" min="1" max="98" style="width:72px">%</label><label>B 類累計到 <input id="abcB" class="fi" type="number" min="2" max="99" style="width:72px">%</label><label><input id="abcU" type="checkbox"> 包含待付款訂單</label></div>
-  <div class="abcTiles" id="abcSum"></div><div id="abcAlert"></div><div id="abcChart"></div>
+  <div class="abcTiles" id="abcSum"></div><div id="abcRec"></div><div id="abcAlert"></div><div id="abcChart"></div>
   <div class="tw" style="max-height:380px;overflow:auto;margin-top:10px"><table><thead><tr><th>級別</th><th>#</th><th>商品</th><th>寵物</th><th>營收</th><th>銷量</th><th>占比</th><th>累計</th><th>庫存</th><th>建議</th></tr></thead><tbody id="abcT"></tbody></table></div></div>
  <div class="card tw"><table><thead><tr><th>訂單</th><th>時間</th><th>收件人</th><th>金額</th><th>付款</th><th>狀態</th></tr></thead><tbody id="ordT"></tbody></table></div>
  <div class='card' style='margin-top:16px'><h3>商品上下架</h3><p class='meta'>切換狀態、改價格或庫存後立即生效，下架商品不會出現在前台。</p><p class='meta' id='stkNote'></p><div class='tw' style='max-height:340px;overflow:auto'><table><thead><tr><th>商品</th><th>圖片</th><th>寵物</th><th>價格</th><th>庫存</th><th>狀態</th></tr></thead><tbody id='prodT'></tbody></table></div>
@@ -559,11 +559,36 @@ let TU=0;
 /* ===== ABC 分析 ===== */
 let ABC={m:'rev',a:80,b:95,u:true};
 try{Object.assign(ABC,JSON.parse(localStorage.getItem('mj_abc')||'{}'))}catch(e){}
-function abcCalc(){const map={};let tq=0;P.forEach(p=>{if(!p.trial)map[p.id]={p,rev:0,qty:0}});
- ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;o.items.forEach(i=>{if(isTrial(i.id)){tq+=i.q;return}const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
+function abcCalc(){const map={};let tq=0,t0=Infinity;P.forEach(p=>{if(!p.trial)map[p.id]={p,rev:0,qty:0}});
+ ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;t0=Math.min(t0,o.ts||Date.now());o.items.forEach(i=>{if(isTrial(i.id)){tq+=i.q;return}const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
  const k=ABC.m=='rev'?'rev':'qty',arr=Object.values(map).filter(e=>!e.p.off||e[k]>0).sort((x,y)=>y[k]-x[k]||String(x.p.n).localeCompare(String(y.p.n),'zh-TW')),tot=arr.reduce((a,e)=>a+e[k],0);let cum=0;
  arr.forEach(e=>{const v=e[k];if(!tot||!v){e.cls='C';e.share=0;e.cum=tot?cum/tot*100:0;e.zero=true;return}const prev=cum/tot*100;cum+=v;e.share=v/tot*100;e.cum=cum/tot*100;e.cls=prev<ABC.a?'A':prev<ABC.b?'B':'C'});
- return{arr,tot,k,tq}}
+ return{arr,tot,k,tq,days:Math.max(7,(Date.now()-t0)/864e5)}}
+/* 經營建議：依 ABC 結果、日均銷量與目前庫存即時產生，訂單、庫存、價格或上下架一變動就會重算 */
+function abcRecs(R){const{arr,tot,k,days}=R;if(!tot)return'';
+ const STK=30,unit=k=='rev'?'營收':'銷量',live=arr.filter(e=>!e.p.off&&!e.p.gone),out=[],
+ list=(a,f,n=8)=>a.slice(0,n).map(f).join('、')+(a.length>n?`…等 ${a.length} 項`:''),
+ nm=e=>esc(e.p.n)+(PETS[e.p.pet]?`（${PETS[e.p.pet].n}）`:''),
+ tgt=e=>Math.max(10,Math.ceil(e.qty/days*14)),
+ stl=e=>{const n=stockOf(e.p);return(n<=0?'已售完':'剩 '+n+' 件')+'，建議補到 '+tgt(e)+' 件'};
+ const low=live.filter(e=>!e.zero&&e.cls!='C'&&stockOf(e.p)<=LOW).sort((x,y)=>(x.cls>y.cls)-(x.cls<y.cls)),la=low.filter(e=>e.cls=='A').length;
+ if(low.length)out.push({lv:la?'hi':'mid',t:la?'優先補貨':'建議補貨',h:`主力與次主力商品庫存偏低（A 類 ${la} 項、B 類 ${low.length-la} 項），缺貨會直接損失營收。`,b:list(low,e=>`<b>${e.cls}</b> ${nm(e)}（${stl(e)}）`,10),n:`補貨量＝日均銷量（以 ${Math.round(days)} 天估算）× 14 天，至少 10 件。`});
+ const aA=arr.filter(e=>e.cls=='A'),nA=aA.length,avgA=nA?aA.reduce((s,e)=>s+e.rev/(e.qty||1),0)/nA:0,
+ q=arr.filter(e=>e.qty>0).map(e=>e.qty).sort((a,b)=>b-a),thr=q.length>=6?q[Math.floor(q.length/3)]:Infinity,
+ up=live.filter(e=>e.cls=='B'&&e.qty>=thr&&e.rev/e.qty<avgA);
+ if(up.length)out.push({lv:'mid',t:'升級機會',h:'這些 B 類商品銷量排在前段，但單價偏低，拉高客單價就有機會升到 A 類。建議與主食搭售、做加量包或組合價，順便推動滿 $1,200 免運。',b:list(up,e=>`${nm(e)}（已售 ${e.qty} 件，均價 ${money(e.rev/e.qty)}）`)});
+ const zr=live.filter(e=>e.zero);
+ if(zr.length)out.push({lv:'mid',t:'無銷售商品',h:`${zr.length} 項上架中的商品目前沒有銷售紀錄，可評估促銷、調整價格，或先下架。`,b:list(zr,nm,10)});
+ const ov=live.filter(e=>e.cls=='C'&&!e.zero&&stockOf(e.p)>=STK);
+ if(ov.length)out.push({lv:'mid',t:'庫存積壓',h:`C 類商品貢獻低但庫存偏高（${STK} 件以上），建議做組合贈品或限時優惠消化，補貨時降低進貨量。`,b:list(ov,e=>`${nm(e)}（庫存 ${stockOf(e.p)}，已售 ${e.qty}）`)});
+ const noA=Object.keys(PETS).filter(p=>live.some(e=>e.p.pet==p)&&!arr.some(e=>e.p.pet==p&&e.cls=='A'));
+ if(noA.length)out.push({lv:'info',t:'寵物線檢視',h:`${noA.map(p=>PETS[p].e+PETS[p].n).join('、')}目前沒有 A 類商品，可主打一兩款代表商品、精簡品項，或加強曝光。`});
+ const sh=arr[0]?arr[0].share:0;
+ if(arr.length>=10&&nA/arr.length>.5)out.push({lv:'info',t:'分級門檻',h:`A 類占了 ${Math.round(nA/arr.length*100)}% 的商品（${nA} 項），分級偏寬。可以把 A 類門檻調低（例如 70%），讓 A 類聚焦在真正的核心商品。`});
+ else if(sh>=25)out.push({lv:'info',t:'集中風險',h:`第一名「${esc(arr[0].p.n)}」就占了 ${sh.toFixed(1)}% 的${unit}，過度依賴單一商品，建議確保庫存並培養第二主力。`});
+ if(nA)out.push({lv:'info',t:'主力策略',h:`A 類 ${nA} 項貢獻 ${(aA.reduce((s,e)=>s+e[k],0)/tot*100).toFixed(1)}% 的${unit}。維持安全庫存、避免大幅折扣，並主推定期購（95 折）把回購客人鎖住。`});
+ const lab={hi:'🔴 ',mid:'🟡 ',info:'🔵 '};
+ return `<div class='abcRecH'><h3>經營建議</h3><span class='meta'>依目前的${unit}與庫存即時計算，有新訂單或調整庫存就會更新。</span></div>`+(out.length?out.map(r=>`<div class='abcAl${r.lv=='hi'?'':' info'}'><b>${lab[r.lv]}${r.t}</b>｜${r.h}${r.b?`<div class='rb'>${r.b}</div>`:''}${r.n?`<div class='meta'>${r.n}</div>`:''}</div>`).join(''):`<div class='abcAl info'>目前沒有需要處理的項目。</div>`)}
 function abcChart(arr,k){const top=arr.filter(e=>!e.zero).slice(0,12);if(!top.length)return'';
  const W=640,H=230,l=48,r=44,t=14,b=26,iw=W-l-r,ih=H-t-b,n=top.length,step=iw/n,bw=step*.68,mx=Math.max(...top.map(e=>e[k])),nice=(()=>{const m=Math.pow(10,Math.floor(Math.log10(mx)));return Math.ceil(mx/m*2)/2*m||1})(),Y=v=>t+ih-v/nice*ih,Yp=v=>t+ih-v/100*ih,fv=v=>k=='rev'?money(v):v;
  const col={A:'var(--accent)',B:'var(--abcB)',C:'var(--abcC)'};
@@ -575,11 +600,11 @@ function abcChart(arr,k){const top=arr.filter(e=>!e.zero).slice(0,12);if(!top.le
  </svg><p class='meta'>長條是各商品${k=='rev'?'營收':'銷量'}（前 ${n} 名，數字為排名），黑線是累計占比，虛線是 A、B 類的分界。</p>`}
 function renderAbc(){const card=$('#abcCard');if(!card||$('#admin').hidden)return;
  const set=(id,v,c)=>{const e=$('#'+id);if(e&&document.activeElement!==e){c?e.checked=v:e.value=v}};set('abcM',ABC.m);set('abcA',ABC.a);set('abcB',ABC.b);set('abcU',ABC.u,1);
- const{arr,tot,k,tq}=abcCalc(),trialNote=`<div class='abcAl info'>🎁 試吃包是免費贈品，不列入 ABC 排名；累計已領取 ${tq} 份。</div>`,fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
- if(!tot){$('#abcSum').innerHTML='';$('#abcChart').innerHTML='';$('#abcAlert').innerHTML="<div class='abcAl info'>目前還沒有可分析的訂單。有訂單之後，這裡會自動依貢獻度分成 A、B、C 三級。</div>"+trialNote;$('#abcT').innerHTML='<tr><td colspan=10>還沒有銷售資料。</td></tr>';return}
+ const{arr,tot,k,tq,days}=abcCalc(),trialNote=`<div class='abcAl info'>🎁 試吃包是免費贈品，不列入 ABC 排名；累計已領取 ${tq} 份。</div>`,fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
+ if(!tot){$('#abcSum').innerHTML='';$('#abcRec').innerHTML='';$('#abcChart').innerHTML='';$('#abcAlert').innerHTML="<div class='abcAl info'>目前還沒有可分析的訂單。有訂單之後，這裡會自動依貢獻度分成 A、B、C 三級。</div>"+trialNote;$('#abcT').innerHTML='<tr><td colspan=10>還沒有銷售資料。</td></tr>';return}
  $('#abcSum').innerHTML=['A','B','C'].map(c=>{const g=arr.filter(e=>e.cls==c),v=g.reduce((a,e)=>a+e[k],0);return `<div><span class='abc ${c}'>${c}</span> <b>${g.length}</b> 項<div class='meta'>占全部商品 ${(g.length/arr.length*100).toFixed(0)}%，貢獻${unit} ${(v/tot*100).toFixed(1)}%（${fv(v)}）</div></div>`}).join('');
- const lowA=arr.filter(e=>e.cls=='A'&&!e.zero&&!e.p.off&&stockOf(e.p)<=LOW),zero=arr.filter(e=>e.zero&&!e.p.off).length;
- $('#abcAlert').innerHTML=(lowA.length?`<div class='abcAl'>⚠ A 類主力商品庫存偏低，建議優先補貨：${lowA.map(e=>esc(e.p.n)+'（'+(stockOf(e.p)?'剩 '+stockOf(e.p)+' 件':'已售完')+'）').join('、')}</div>`:'')+(zero?`<div class='abcAl info'>${zero} 項上架中的商品沒有銷售紀錄（C 類），可評估促銷、調整價格或下架。</div>`:'')+trialNote;
+ $('#abcRec').innerHTML=abcRecs({arr,tot,k,days});
+ $('#abcAlert').innerHTML=trialNote;
  $('#abcChart').innerHTML=abcChart(arr,k);
  const adv=e=>e.cls=='A'?(!e.p.off&&stockOf(e.p)<=LOW?'優先補貨':'主力，維持庫存'):e.cls=='B'?'穩定，正常備貨':e.zero?'促銷或下架':'控制庫存';
  $('#abcT').innerHTML=arr.map((e,i)=>`<tr><td><span class='abc ${e.cls}'>${e.cls}</span></td><td>${i+1}</td><td>${esc(e.p.n)}${e.p.off?" <span class='meta'>（已下架）</span>":''}</td><td>${PETS[e.p.pet]?PETS[e.p.pet].n:''}</td><td>${money(e.rev)}</td><td>${e.qty}</td><td>${e.share.toFixed(1)}%</td><td>${e.cum.toFixed(1)}%</td><td>${e.p.gone?'-':stockOf(e.p)+' '+stTag(e.p)}</td><td>${adv(e)}</td></tr>`).join('')}
