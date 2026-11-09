@@ -445,12 +445,12 @@ const sbMsg=e=>{const m=(e&&e.message)||'';return/invalid login/i.test(m)?'Email
 async function sbApply(sess){const u=sess&&sess.user;if((u?u.id:null)===UID&&(u?SESS:true))return;
  UID=u?u.id:null;OWNER=false;
  if(!u){SESS=null;try{localStorage.removeItem(SK)}catch(e){}renderMem();TU=0;renderTrial();return}
- try{const r=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();OWNER=!!r.data}catch(e){}
+ try{const r=await SB.from('admins').select('user_id').eq('user_id',u.id).maybeSingle();if(r.error)console.error('admins check failed',r.error);OWNER=!!r.data;console.info('[meow] uid',u.id,'seller:',OWNER)}catch(e){console.error('admins check failed',e)}
  await syncMembers();const email=(u.email||'').toLowerCase();
  if(!mget().some(x=>x.email==email))save({email,name:(u.user_metadata&&u.user_metadata.name)||email.split('@')[0],points:0,pets:[],role:'buyer'});
  {const a=mget(),i=a.findIndex(x=>x.email==email);a[i].role=OWNER?'seller':'buyer';a[i].owner=UID;mset(a)}
  login(email);
- if(OWNER){showAdmin(true);if(!sbOrdersOn){sbOrdersOn=true;DB.collection('orders').onSnapshot(s=>{ORD=s.docs.flatMap(d=>d.data().list||[]);renderAdmin()},()=>{})}}}
+ if(OWNER){showAdmin(true);if(!sbOrdersOn){sbOrdersOn=true;DB.collection('orders').onSnapshot(s=>{ORD=s.docs.flatMap(d=>d.data().list||[]);renderAdmin()},e=>console.error('orders load failed',e))}}}
 let sbOrdersOn=false;
 async function sbInit(){const c=window.MEOW_CONFIG;SB=window.supabase.createClient(c.supabaseUrl,c.supabaseKey);DB=sbDb(SB);
  const iv=$('#mInv');if(iv)(iv.closest('label')||iv).hidden=true;$('#mLine').hidden=true;
@@ -696,7 +696,7 @@ let SESS=null,AMODE='login';const MK='mj_members',SK='mj_session';
 const mget=()=>{try{return JSON.parse(localStorage.getItem(MK)||'[]')}catch(e){return[]}};
 const mset=a=>{try{localStorage.setItem(MK,JSON.stringify(a))}catch(e){}pushMem()};
 let PT=null;
-function pushMem(){if(!DB||!UID)return;clearTimeout(PT);PT=setTimeout(async()=>{const l=mget().filter(m=>m.owner===UID);try{await DB.doc('members/'+UID).set({accounts:l})}catch(e){toast('會員資料同步失敗')}},400)}
+function pushMem(){if(!DB||!UID)return;clearTimeout(PT);PT=setTimeout(async()=>{const l=mget().filter(m=>m.owner===UID);try{await DB.doc('members/'+UID).set({accounts:l})}catch(e){console.error('members sync failed',e);toast('會員資料同步失敗：'+((e&&(e.message||e.code))||'未知錯誤'))}},400)}
 async function syncMembers(){if(!DB||!UID)return;
  try{const s=await DB.doc('members/'+UID).get(),a=mget();let ch=false;
   if(s.exists)(s.data().accounts||[]).forEach(r=>{const i=a.findIndex(x=>x.email==r.email);if(i<0){a.push(r);ch=true}else if(JSON.stringify(a[i])!==JSON.stringify(r)){a[i]=r;ch=true}});
