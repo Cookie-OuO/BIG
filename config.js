@@ -3,7 +3,7 @@
 // 絕對不要把 service_role key 放在這裡。
 window.MEOW_CONFIG = {
   supabaseUrl: "https://fibkffmatrmdmnmxycvc.supabase.co",
-  supabaseKey: "sb_publishable_ekIHt0eiFXqRCzu6Mydcxw_Lk8umQY4"
+  supabaseKey: "sb_publishable_ekIht0eiFXqRCzu6Mydcxw_Lk8umQY4"
 };
 ```[cite: 2]
 
