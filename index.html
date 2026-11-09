@@ -661,8 +661,8 @@ async function submitOrder(){
  if(trialInCart()){if(!SESS){toast('試吃包限會員領取，請先登入');$('#ck').hidden=true;$('#mb').hidden=false;return}const used=await trialUsed();if(used+trialInCart()>TRIAL_MAX){TU=used;renderTrial();toast(`本月試吃包額度剩 ${Math.max(0,TRIAL_MAX-used)} 份，請調整數量`);return}}
  const o={id:'A'+Date.now().toString(36).toUpperCase(),ts:Date.now(),uid:UID,member:SESS?SESS.email:null,name:v('ckName'),tel:v('ckTel'),addr:v('ckAddr'),pay:totals().total==0?'免費試吃':$('#ckPay').value,shipM:$('#ckShip').value,...totals(),status:totals().total==0||$('#ckPay').value=='貨到付款'?'待出貨':'待付款',items:cart.map(c=>{const p=P.find(x=>x.id==c.id);return{id:p.id,n:p.n,pet:p.pet,c:p.c,type:c.type,q:c.q,pr:Math.round(p.pr*(c.type=='定期購（寄倉）'?.95:1))}})};
  try{
-  if(DB&&UID){const r=DB.doc('orders/'+UID);let l=[];try{const s=await r.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(o);try{await r.set({list:l})}catch(e){const q=lget();q.push(o);lset(q);ORD=q}}
-  else{const l=lget();l.push(o);lset(l);ORD=l}
+  if(DB&&UID){const r=DB.doc('orders/'+UID);let l=[];try{const s=await r.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(o);try{await r.set({list:l})}catch(e){if(SB){console.error('order save failed',e);toast('訂單沒有存進資料庫：'+((e&&e.message)||'未知錯誤'));return}const q=lget();q.push(o);lset(q);ORD=q}}
+  else{if(SB){toast('請先登入會員再下單，訂單才會存進資料庫');$('#ck').hidden=true;$('#mb').hidden=false;return}const l=lget();l.push(o);lset(l);ORD=l}
  }catch(e){toast('送出失敗，請稍後再試');return}
  await recordSale(o.items);refreshTrial();
  if(SESS)earn(o);cart=[];disc=0;renderCart();$('#ckForm').hidden=true;$('#ckNo').textContent=o.id;$('#drawer').classList.remove('open');renderAdmin();
