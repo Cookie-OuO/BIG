@@ -10,7 +10,7 @@
 | `config.js` | 填入 Supabase 網址與 anon key |
 | `supabase/schema.sql` | 資料表、權限規則、每月試吃包上限檢查 |
 | `supabase/seed.sql` | 全部 125 項商品資料 |
-| `supabase/functions/ai-chat/` | AI 顧問的後端（Edge Function，選用） |
+| `supabase/functions/ai-chat/index.ts` | AI 營養師的後端（Edge Function），要使用 AI 對話才需要部署 |
 | `.nojekyll` | 讓 GitHub Pages 原樣提供檔案 |
 
 ## 部署步驟
@@ -31,54 +31,6 @@
 
 `config.js` 沒填或還是範例值時，網站會退回「只存在這個瀏覽器」的示範模式。
 
-## 賣家後台：ABC 商品分析
-
-後台「ABC 商品分析」區塊會依訂單資料自動分級，**不用手動更新**：
-
-- 後台約每 8 秒同步一次訂單；有新訂單、改庫存、改商品狀態或調整條件時，A／B／C 與柏拉圖會立刻重算（右上角顯示最後更新時間）。
-- 分級方式：商品依營收（或銷量）由高到低排列，累計占比**未達 80% 前**的是 **A（主力）**，到 95% 為 **B**，其餘為 **C**。兩個門檻可以在畫面上改。
-- 可切換「依營收／依銷量」、期間（全部／近 30 天／近 7 天），也能選擇是否排除「待付款」訂單（預設排除）。
-- 每項商品附庫存與建議，例如 A 類庫存偏低會提示優先補貨；另可匯出 CSV。
-- 沒有銷售的上架商品不列入分級，只顯示件數。
-
-## AI 顧問（顧客端）
-
-網頁右下角的「🐾 AI 顧問」讓顧客用聊天的方式描述毛孩情況，顧問會追問、推薦商品（附「加入」「詳情」按鈕）。顧客也能按「帶入分析區資料」，把「毛孩適配分析」表單目前的選項一起帶進對話。
-
-有兩種模式，網頁會自動選擇：
-
-| 模式 | 條件 | 說明 |
-|---|---|---|
-| **AI 模式（Claude）** | 已部署 `ai-chat` 函式 | 真正的 AI 對話，能理解自然語言、追問細節。 |
-| **基本模式** | 沒部署、或 AI 連不上 | 網頁內建的規則對話：從句子抓出寵物種類、年齡、體重、困擾、過敏肉種、預算，再配對商品。不用任何額外設定。 |
-
-### 啟用 AI 模式
-
-API key 不能放在網頁裡（任何人都看得到），所以要放在 Supabase 的 Secrets，由 Edge Function 代為呼叫：
-
-1. 到 console.anthropic.com 建立 API key。
-2. 安裝 [Supabase CLI](https://supabase.com/docs/guides/cli) 並登入、連結專案：`supabase login`、`supabase link --project-ref 你的專案代號`。
-3. 設定 Secrets（`ALLOWED_ORIGIN` 填你的 GitHub Pages 網址，只允許自己的網站呼叫）：
-
-   ```bash
-   supabase secrets set ANTHROPIC_API_KEY=sk-ant-xxxxx ALLOWED_ORIGIN=https://你的帳號.github.io
-   ```
-
-4. 部署函式：
-
-   ```bash
-   supabase functions deploy ai-chat --no-verify-jwt
-   ```
-
-5. 不用改 `config.js`：網址預設是 `<supabaseUrl>/functions/v1/ai-chat`。重新整理網站，聊天視窗標題下會顯示「AI 模式（Claude）」。
-
-說明：
-
-- 函式會即時讀取商品目錄（含你在後台調整的價格、下架、庫存），所以不會推薦已下架或缺貨的商品。
-- 預設模型是 `claude-haiku-5-5`（便宜、快）；想換模型，設定 `ANTHROPIC_MODEL` 這個 secret。
-- 每次呼叫都會花 API 費用。函式已限制：每個 IP 每分鐘 15 次、只帶最近 12 則訊息、回覆上限 700 tokens。這是基本防護；若網站流量變大，建議到 Anthropic 後台設定每月用量上限。
-- AI 的回覆只是選購建議，不是醫療意見；對話中出現就醫警訊時，顧問會先請顧客找獸醫師。
-
 ## 資料存放
 
 | 資料 | 位置 | 誰能看 |
@@ -96,6 +48,33 @@ API key 不能放在網頁裡（任何人都看得到），所以要放在 Supab
 - 點選「領取試吃包」後，會直接開啟結帳視窗填寫運送資料，會自動帶入上次填的姓名、電話、地址。
 - 額度在三個地方檢查：點選時、結帳送出時、資料庫寫入時（`guard_docs` 觸發器）。就算有人改網頁程式，資料庫也會擋下第 3 份。
 - 試吃包單價沿用商品資料裡的價格（貓 $99、狗 $129），運費照一般規則計算。
+
+## 賣家後台：ABC 分析
+
+賣家後台有「ABC 分析」區塊，依訂單資料把商品分成三級，訂單、狀態、價格或庫存一有變動就會即時重算：
+
+- **A 類**：累計貢獻到前 80% 的主力商品；**B 類**：累計到 95%；**C 類**：其餘與沒有銷售的商品。兩個百分比可以自行調整。
+- 可切換依「營收」或「銷量」分析，也可選擇是否包含待付款訂單。
+- 內容有各級摘要、柏拉圖（前 12 名）、完整排名表，以及補貨與促銷建議；A 類商品庫存偏低時會特別提醒。
+
+## 顧客端：AI 營養師
+
+登入的會員可以在網頁右下角開啟「AI 營養師」，用對話描述毛孩的情況，AI 會依店裡現有商品、價格和庫存推薦，並附上可直接加入購物車的商品卡片。已儲存的毛孩資料、分析頁填寫的內容和購物車也會一併提供給 AI 參考。
+
+網頁不能直接放 Anthropic API 金鑰，所以這個版本透過 Supabase Edge Function 呼叫 AI。沒有部署時，AI 按鈕不會出現，其他功能不受影響。
+
+1. 到 [console.anthropic.com](https://console.anthropic.com) 建立 API 金鑰。
+2. 安裝 Supabase CLI 並登入後，在專案資料夾執行：
+
+   ```bash
+   supabase link --project-ref 你的專案代號
+   supabase secrets set ANTHROPIC_API_KEY=你的金鑰
+   supabase functions deploy ai-chat
+   ```
+
+3. 可選設定：`supabase secrets set AI_MODEL=模型名稱`（預設 `claude-sonnet-5-5`）、`AI_DAILY_LIMIT=30`（每位會員每天可提問的次數）。
+
+函式只接受已登入的會員，並限制每人每天的提問次數與每次的輸入長度，避免金鑰被濫用而產生意外費用。`schema.sql` 內的 `ai_usage` 資料表用來記錄次數，網頁本身讀不到。API 用量由你的 Anthropic 帳號計費，請在 Anthropic 後台設定用量上限。
 
 ## 注意事項
 
