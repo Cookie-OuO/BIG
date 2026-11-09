@@ -559,11 +559,11 @@ let TU=0;
 /* ===== ABC 分析 ===== */
 let ABC={m:'rev',a:80,b:95,u:true};
 try{Object.assign(ABC,JSON.parse(localStorage.getItem('mj_abc')||'{}'))}catch(e){}
-function abcCalc(){const map={};P.forEach(p=>{map[p.id]={p,rev:0,qty:0}});
- ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;o.items.forEach(i=>{const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
+function abcCalc(){const map={};let tq=0;P.forEach(p=>{if(!p.trial)map[p.id]={p,rev:0,qty:0}});
+ ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;o.items.forEach(i=>{if(isTrial(i.id)){tq+=i.q;return}const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
  const k=ABC.m=='rev'?'rev':'qty',arr=Object.values(map).filter(e=>!e.p.off||e[k]>0).sort((x,y)=>y[k]-x[k]||String(x.p.n).localeCompare(String(y.p.n),'zh-TW')),tot=arr.reduce((a,e)=>a+e[k],0);let cum=0;
  arr.forEach(e=>{const v=e[k];if(!tot||!v){e.cls='C';e.share=0;e.cum=tot?cum/tot*100:0;e.zero=true;return}const prev=cum/tot*100;cum+=v;e.share=v/tot*100;e.cum=cum/tot*100;e.cls=prev<ABC.a?'A':prev<ABC.b?'B':'C'});
- return{arr,tot,k}}
+ return{arr,tot,k,tq}}
 function abcChart(arr,k){const top=arr.filter(e=>!e.zero).slice(0,12);if(!top.length)return'';
  const W=640,H=230,l=48,r=44,t=14,b=26,iw=W-l-r,ih=H-t-b,n=top.length,step=iw/n,bw=step*.68,mx=Math.max(...top.map(e=>e[k])),nice=(()=>{const m=Math.pow(10,Math.floor(Math.log10(mx)));return Math.ceil(mx/m*2)/2*m||1})(),Y=v=>t+ih-v/nice*ih,Yp=v=>t+ih-v/100*ih,fv=v=>k=='rev'?money(v):v;
  const col={A:'var(--accent)',B:'var(--abcB)',C:'var(--abcC)'};
@@ -575,11 +575,11 @@ function abcChart(arr,k){const top=arr.filter(e=>!e.zero).slice(0,12);if(!top.le
  </svg><p class='meta'>長條是各商品${k=='rev'?'營收':'銷量'}（前 ${n} 名，數字為排名），黑線是累計占比，虛線是 A、B 類的分界。</p>`}
 function renderAbc(){const card=$('#abcCard');if(!card||$('#admin').hidden)return;
  const set=(id,v,c)=>{const e=$('#'+id);if(e&&document.activeElement!==e){c?e.checked=v:e.value=v}};set('abcM',ABC.m);set('abcA',ABC.a);set('abcB',ABC.b);set('abcU',ABC.u,1);
- const{arr,tot,k}=abcCalc(),fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
- if(!tot){$('#abcSum').innerHTML='';$('#abcChart').innerHTML='';$('#abcAlert').innerHTML="<div class='abcAl info'>目前還沒有可分析的訂單。有訂單之後，這裡會自動依貢獻度分成 A、B、C 三級。</div>";$('#abcT').innerHTML='<tr><td colspan=10>還沒有銷售資料。</td></tr>';return}
+ const{arr,tot,k,tq}=abcCalc(),trialNote=`<div class='abcAl info'>🎁 試吃包是免費贈品，不列入 ABC 排名；累計已領取 ${tq} 份。</div>`,fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
+ if(!tot){$('#abcSum').innerHTML='';$('#abcChart').innerHTML='';$('#abcAlert').innerHTML="<div class='abcAl info'>目前還沒有可分析的訂單。有訂單之後，這裡會自動依貢獻度分成 A、B、C 三級。</div>"+trialNote;$('#abcT').innerHTML='<tr><td colspan=10>還沒有銷售資料。</td></tr>';return}
  $('#abcSum').innerHTML=['A','B','C'].map(c=>{const g=arr.filter(e=>e.cls==c),v=g.reduce((a,e)=>a+e[k],0);return `<div><span class='abc ${c}'>${c}</span> <b>${g.length}</b> 項<div class='meta'>占全部商品 ${(g.length/arr.length*100).toFixed(0)}%，貢獻${unit} ${(v/tot*100).toFixed(1)}%（${fv(v)}）</div></div>`}).join('');
  const lowA=arr.filter(e=>e.cls=='A'&&!e.zero&&!e.p.off&&stockOf(e.p)<=LOW),zero=arr.filter(e=>e.zero&&!e.p.off).length;
- $('#abcAlert').innerHTML=(lowA.length?`<div class='abcAl'>⚠ A 類主力商品庫存偏低，建議優先補貨：${lowA.map(e=>esc(e.p.n)+'（'+(stockOf(e.p)?'剩 '+stockOf(e.p)+' 件':'已售完')+'）').join('、')}</div>`:'')+(zero?`<div class='abcAl info'>${zero} 項上架中的商品沒有銷售紀錄（C 類），可評估促銷、調整價格或下架。</div>`:'');
+ $('#abcAlert').innerHTML=(lowA.length?`<div class='abcAl'>⚠ A 類主力商品庫存偏低，建議優先補貨：${lowA.map(e=>esc(e.p.n)+'（'+(stockOf(e.p)?'剩 '+stockOf(e.p)+' 件':'已售完')+'）').join('、')}</div>`:'')+(zero?`<div class='abcAl info'>${zero} 項上架中的商品沒有銷售紀錄（C 類），可評估促銷、調整價格或下架。</div>`:'')+trialNote;
  $('#abcChart').innerHTML=abcChart(arr,k);
  const adv=e=>e.cls=='A'?(!e.p.off&&stockOf(e.p)<=LOW?'優先補貨':'主力，維持庫存'):e.cls=='B'?'穩定，正常備貨':e.zero?'促銷或下架':'控制庫存';
  $('#abcT').innerHTML=arr.map((e,i)=>`<tr><td><span class='abc ${e.cls}'>${e.cls}</span></td><td>${i+1}</td><td>${esc(e.p.n)}${e.p.off?" <span class='meta'>（已下架）</span>":''}</td><td>${PETS[e.p.pet]?PETS[e.p.pet].n:''}</td><td>${money(e.rev)}</td><td>${e.qty}</td><td>${e.share.toFixed(1)}%</td><td>${e.cum.toFixed(1)}%</td><td>${e.p.gone?'-':stockOf(e.p)+' '+stTag(e.p)}</td><td>${adv(e)}</td></tr>`).join('')}
