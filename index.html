@@ -130,6 +130,9 @@ footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30
 .fi{padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit}.g textarea{width:100%}
 @media(max-width:760px){.hero .wrap,.analyzer{grid-template-columns:1fr}.sticky{display:flex}nav{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+.pr{border:1px solid var(--line);border-radius:14px;padding:12px;background:var(--bg)}.pr h4{margin:0 0 4px;font-size:1rem}.pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px;margin:10px 0}
+.ptag{display:inline-block;font-size:.78rem;border-radius:99px;padding:0 10px;margin:2px 4px 2px 0;background:var(--butter);color:var(--ink)}
+#promoBox .abcAl{margin:6px 0}#promoBox .chip{cursor:pointer}
 </style>
 </head>
 <body>
@@ -213,7 +216,10 @@ footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30
   <div class="abcCtl"><label>分析依據 <select id="abcM" class="fi"><option value="rev">營收</option><option value="qty">銷量（件數）</option></select></label><label>A 類累計到 <input id="abcA" class="fi" type="number" min="1" max="98" style="width:72px">%</label><label>B 類累計到 <input id="abcB" class="fi" type="number" min="2" max="99" style="width:72px">%</label><label><input id="abcU" type="checkbox"> 包含待付款訂單</label></div>
   <div class="abcTiles" id="abcSum"></div><div id="abcRec"></div><div id="abcAlert"></div><div id="abcChart"></div>
   <div class="tw" style="max-height:380px;overflow:auto;margin-top:10px"><table><thead><tr><th>級別</th><th>#</th><th>商品</th><th>寵物</th><th>營收</th><th>銷量</th><th>占比</th><th>累計</th><th>庫存</th><th>建議</th></tr></thead><tbody id="abcT"></tbody></table></div></div>
- <div class="card tw"><table><thead><tr><th>訂單</th><th>時間</th><th>收件人</th><th>金額</th><th>付款</th><th>狀態</th></tr></thead><tbody id="ordT"></tbody></table></div>
+ <div class="card" id="promoCard" style="margin-top:16px"><h3>🎯 ABC 行銷策略中心</h3>
+  <p class="meta">依 ABC 分級自動在前台套用優惠：主力（A）不打折、當作入口；人氣（B）靠搭配提升連帶率；超值福利（C）當贈品與加價購消化庫存。改完立即生效。</p>
+  <div id="promoUI"></div></div>
+  <div class="card tw"><table><thead><tr><th>訂單</th><th>時間</th><th>收件人</th><th>金額</th><th>付款</th><th>狀態</th></tr></thead><tbody id="ordT"></tbody></table></div>
  <div class='card' style='margin-top:16px'><h3>商品上下架</h3><p class='meta'>切換狀態、改價格或庫存後立即生效，下架商品不會出現在前台。</p><p class='meta' id='stkNote'></p><div class='tw' style='max-height:340px;overflow:auto'><table><thead><tr><th>商品</th><th>圖片</th><th>寵物</th><th>價格</th><th>庫存</th><th>狀態</th></tr></thead><tbody id='prodT'></tbody></table></div>
   <h3 style='margin-top:14px'>新增商品</h3><div class='row'><input id='npN' class='fi' placeholder='商品名稱'><select id='npPet' class='fi'></select><select id='npC' class='fi'></select><input id='npP' class='fi' type='number' min='1' placeholder='價格' style='width:110px'><button class='btn' id='npAdd'>新增並上架</button></div></div>
 </div></section>
@@ -231,7 +237,7 @@ footer{background:var(--surface);border-top:1px solid var(--line);padding-top:30
  <div class="row" style="justify-content:space-between;align-items:center"><h2 style="font-size:1.3rem">購物車</h2><button class="chip" id="close">關閉</button></div>
  <p class="meta" style="margin:8px 0 4px" id="prog"></p>
  <div class="bar"><i id="progBar" style="width:0"></i></div>
- <div id="items"></div>
+ <div id="items"></div><div id="promoBox"></div>
  <div class="row" style="margin:12px 0"><input id="code" placeholder="推薦碼（試試 MEOW50）" style="flex:1;padding:8px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><button class="chip" id="apply">套用</button></div>
  <div id="sum"></div>
  <p class="meta">一般商品、試吃包與寄倉定期購在同一張訂單結帳，運費由系統自動計算。</p>
@@ -559,11 +565,11 @@ let TU=0;
 /* ===== ABC 分析 ===== */
 let ABC={m:'rev',a:80,b:95,u:true};
 try{Object.assign(ABC,JSON.parse(localStorage.getItem('mj_abc')||'{}'))}catch(e){}
-function abcCalc(){const map={};let tq=0,t0=Infinity;P.forEach(p=>{if(!p.trial)map[p.id]={p,rev:0,qty:0}});
- ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;t0=Math.min(t0,o.ts||Date.now());o.items.forEach(i=>{if(isTrial(i.id)){tq+=i.q;return}const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
+function abcCalc(){const map={};let tq=0,gq=0,t0=Infinity;P.forEach(p=>{if(!p.trial)map[p.id]={p,rev:0,qty:0}});
+ ORD.forEach(o=>{if(!ABC.u&&o.status=='待付款')return;t0=Math.min(t0,o.ts||Date.now());o.items.forEach(i=>{if(isTrial(i.id)){tq+=i.q;return}if(i.gift){gq+=i.q;return}const e=map[i.id]||(map[i.id]={p:{id:i.id,n:i.n,pet:i.pet,c:i.c,off:true,gone:true},rev:0,qty:0});e.rev+=i.pr*i.q;e.qty+=i.q})});
  const k=ABC.m=='rev'?'rev':'qty',arr=Object.values(map).filter(e=>!e.p.off||e[k]>0).sort((x,y)=>y[k]-x[k]||String(x.p.n).localeCompare(String(y.p.n),'zh-TW')),tot=arr.reduce((a,e)=>a+e[k],0);let cum=0;
  arr.forEach(e=>{const v=e[k];if(!tot||!v){e.cls='C';e.share=0;e.cum=tot?cum/tot*100:0;e.zero=true;return}const prev=cum/tot*100;cum+=v;e.share=v/tot*100;e.cum=cum/tot*100;e.cls=prev<ABC.a?'A':prev<ABC.b?'B':'C'});
- return{arr,tot,k,tq,days:Math.max(7,(Date.now()-t0)/864e5)}}
+ return{arr,tot,k,tq,gq,days:Math.max(7,(Date.now()-t0)/864e5)}}
 /* 經營建議：依 ABC 結果、日均銷量與目前庫存即時產生，訂單、庫存、價格或上下架一變動就會重算 */
 function abcRecs(R){const{arr,tot,k,days}=R;if(!tot)return'';
  const STK=30,unit=k=='rev'?'營收':'銷量',live=arr.filter(e=>!e.p.off&&!e.p.gone),out=[],
@@ -600,7 +606,7 @@ function abcChart(arr,k){const top=arr.filter(e=>!e.zero).slice(0,12);if(!top.le
  </svg><p class='meta'>長條是各商品${k=='rev'?'營收':'銷量'}（前 ${n} 名，數字為排名），黑線是累計占比，虛線是 A、B 類的分界。</p>`}
 function renderAbc(){const card=$('#abcCard');if(!card||$('#admin').hidden)return;
  const set=(id,v,c)=>{const e=$('#'+id);if(e&&document.activeElement!==e){c?e.checked=v:e.value=v}};set('abcM',ABC.m);set('abcA',ABC.a);set('abcB',ABC.b);set('abcU',ABC.u,1);
- const{arr,tot,k,tq,days}=abcCalc(),trialNote=`<div class='abcAl info'>🎁 試吃包是免費贈品，不列入 ABC 排名；累計已領取 ${tq} 份。</div>`,fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
+ const{arr,tot,k,tq,gq,days}=abcCalc(),trialNote=`<div class='abcAl info'>🎁 試吃包是免費贈品，不列入 ABC 排名；累計已領取 ${tq} 份；行銷贈品累計送出 ${gq} 件（不計入營收與銷量）。</div>`,fv=v=>k=='rev'?money(v):v+' 件',unit=k=='rev'?'營收':'銷量',sold=arr.filter(e=>!e.zero);
  if(!tot){$('#abcSum').innerHTML='';$('#abcRec').innerHTML='';$('#abcChart').innerHTML='';$('#abcAlert').innerHTML="<div class='abcAl info'>目前還沒有可分析的訂單。有訂單之後，這裡會自動依貢獻度分成 A、B、C 三級。</div>"+trialNote;$('#abcT').innerHTML='<tr><td colspan=10>還沒有銷售資料。</td></tr>';return}
  $('#abcSum').innerHTML=['A','B','C'].map(c=>{const g=arr.filter(e=>e.cls==c),v=g.reduce((a,e)=>a+e[k],0);return `<div><span class='abc ${c}'>${c}</span> <b>${g.length}</b> 項<div class='meta'>占全部商品 ${(g.length/arr.length*100).toFixed(0)}%，貢獻${unit} ${(v/tot*100).toFixed(1)}%（${fv(v)}）</div></div>`}).join('');
  $('#abcRec').innerHTML=abcRecs({arr,tot,k,days});
@@ -612,6 +618,57 @@ document.addEventListener('change',e=>{const t=e.target;if(!t.closest||!t.closes
  if(t.id=='abcM')ABC.m=t.value;if(t.id=='abcU')ABC.u=t.checked;
  if(t.id=='abcA'||t.id=='abcB'){let a=Math.round(+$('#abcA').value),b=Math.round(+$('#abcB').value);if(!(a>=1&&a<=98&&b>a&&b<=99)){toast('請輸入 A 類 1–98%、B 類比 A 類大且不超過 99%');$('#abcA').value=ABC.a;$('#abcB').value=ABC.b;return}ABC.a=a;ABC.b=b}
  try{localStorage.setItem('mj_abc',JSON.stringify(ABC))}catch(x){}renderAbc()});
+/* ===== 行銷策略引擎：A 主力／B 人氣／C 超值福利 ===== */
+let PROMO={ab:null,ts:0,r:{gift:{on:true,min:800,cap:300},addon:{on:true,min:600,off:50,max:2},pair:{on:true,off:10,max:2},multi:{on:true,n:3}}},GP=0;
+const DEF=()=>{if(DEF.c)return DEF.c;const a=P.filter(p=>!p.trial).map(p=>({id:p.id,v:(p.sold||0)*(p.pr0!=null?p.pr0:p.pr)})).sort((x,y)=>y.v-x.v),t=a.reduce((s,e)=>s+e.v,0);let c=0;DEF.c={};a.forEach(e=>{const pv=t?c/t*100:100;c+=e.v;DEF.c[e.id]=!e.v?'C':pv<80?'A':pv<95?'B':'C'});return DEF.c};
+const clsOf=id=>(PROMO.ab&&PROMO.ab[id])||DEF()[id]||'C';
+function calc(){const R=PROMO.r,tg=new Set(),L=cart.map((c,i)=>{const p=P.find(x=>x.id==c.id);return{i,p,c,q:c.q,u:p.pr*(c.type=='定期購（寄倉）'?.95:1),cl:p.trial?'':clsOf(p.id),d:0}});
+ const sum=f=>L.filter(f).reduce((s,l)=>s+l.u*l.q,0),A=sum(l=>l.cl=='A'&&l.c.type!='加價購'),raw=sum(()=>1);
+ const okAO=R.addon.on&&A>=R.addon.min;let left=R.addon.max;
+ L.filter(l=>l.c.type=='加價購').forEach(l=>{const k=okAO&&l.cl=='C'?Math.min(l.q,left):0;left-=k;l.bad=!k;if(k){l.d+=k*l.u*R.addon.off/100;tg.add('加價購')}});
+ if(R.pair.on&&A>0){let m=R.pair.max;L.filter(l=>l.cl=='B'&&l.c.type!='加價購').forEach(l=>{const k=Math.min(l.q,m);m-=k;if(k){l.d+=k*l.u*R.pair.off/100;tg.add('搭配折扣')}})}
+ const us=[];L.filter(l=>l.cl=='C'&&l.c.type!='加價購').forEach(l=>{for(let j=0;j<l.q;j++)us.push(l)});
+ if(R.multi.on){us.sort((a,b)=>a.u-b.u);const f=Math.floor(us.length/R.multi.n);for(let j=0;j<f;j++){us[j].d+=us[j].u;tg.add('多件免費')}}
+ const used={};cart.forEach(c=>used[c.id]=(used[c.id]||0)+c.q);
+ const pw={};L.filter(l=>l.cl=='A').forEach(l=>pw[l.p.pet]=(pw[l.p.pet]||0)+l.u*l.q);const top=Object.keys(pw).sort((a,b)=>pw[b]-pw[a])[0];
+ const ao=P.filter(p=>!p.off&&!p.trial&&p.pr>0&&clsOf(p.id)=='C'&&stockOf(p)-(used[p.id]||0)>=1).sort((a,b)=>((b.pet==top)-(a.pet==top))||stockOf(b)-stockOf(a)),pool=ao.filter(p=>p.pr<=R.gift.cap),sel=top&&pool.some(p=>p.pet==top)?pool.filter(p=>p.pet==top):pool,pick=sel.find(p=>p.id==GP)||sel[0];
+ const gifts=R.gift.on&&A>=R.gift.min&&pick?[{p:pick,q:1}]:[];if(gifts.length)tg.add('滿額贈');
+ return{L,gifts,sel,pick,ao,aoLeft:left,A,raw,pd:L.reduce((s,l)=>s+l.d,0),cu:us.length,tg:[...tg]}}
+function orderItems(K){const o=K.L.map(l=>({id:l.p.id,n:l.p.n,pet:l.p.pet,c:l.p.c,type:l.c.type,q:l.q,pr:Math.round((l.u*l.q-l.d)/l.q),cl:l.cl}));K.gifts.forEach(g=>o.push({id:g.p.id,n:g.p.n,pet:g.p.pet,c:g.p.c,type:'贈品',q:g.q,pr:0,gp:g.p.pr,gift:1,cl:'C'}));return o}
+const promoInfo=K=>({pd:Math.round(K.pd),tags:K.tg,gift:K.gifts.map(g=>g.p.n)});
+function addAO(id){const p=P.find(x=>x.id==id),K=calc();if(!p||!PROMO.r.addon.on||K.A<PROMO.r.addon.min||K.aoLeft<1){toast('目前不符合加價購條件');return}const have=cart.filter(c=>c.id==id).reduce((a,c)=>a+c.q,0);if(have+1>stockOf(p)){toast('庫存不足');return}const f=cart.find(c=>c.id==id&&c.type=='加價購');f?f.q++:cart.push({id,type:'加價購',q:1});renderCart();toast('已加入加價購')}
+function promoTag(p){if(p.trial)return'';const R=PROMO.r,c=clsOf(p.id),t=[];
+ if(c=='A'){t.push('⭐ 主力推薦');if(R.gift.on)t.push(`滿 ${money(R.gift.min)} 送好禮`)}
+ if(c=='B'){t.push('👍 人氣搭檔');if(R.pair.on)t.push(`同單買主力再省 ${R.pair.off}%`)}
+ if(c=='C'){t.push('🎁 超值福利');if(R.gift.on)t.push('買主力滿額免費送');if(R.addon.on)t.push(`加價購再省 ${R.addon.off}%`);if(R.multi.on)t.push(`${R.multi.n} 件最低價免費`)}
+ return `<div>${t.map(x=>`<span class="ptag">${x}</span>`).join('')}</div>`}
+function renderPromo(f){const box=$('#promoUI');if(!box||$('#admin').hidden)return;if(!f&&box.contains(document.activeElement)&&document.activeElement!==document.body)return;
+ const R=PROMO.r,live=P.filter(p=>!p.trial&&!p.off),n={A:0,B:0,C:0};live.forEach(p=>n[clsOf(p.id)]++);
+ const rule=(k,ic,ti,desc,fs)=>`<div class="pr"><h4>${ic} ${ti}<label style="float:right;font-weight:400"><input type="checkbox" data-pr="${k}.on"${R[k].on?' checked':''}> 啟用</label></h4><p class="meta">${desc}</p><div class="row">${fs.map(([f,l,u])=>`<label>${l} <input class="fi" type="number" min="1" data-pr="${k}.${f}" value="${R[k][f]}" style="width:78px">${u}</label>`).join('')}</div></div>`;
+ const po=ORD.filter(o=>o.promo&&(o.promo.tags||[]).length),it=ORD.flatMap(o=>o.items||[]),gi=it.filter(i=>i.gift),ao=it.filter(i=>i.type=='加價購'),
+ gq=gi.reduce((s,i)=>s+i.q,0),gv=gi.reduce((s,i)=>s+(i.gp||0)*i.q,0),pd=ORD.reduce((s,o)=>s+((o.promo&&o.promo.pd)||0),0),aq=ao.reduce((s,i)=>s+i.q,0),ar=ao.reduce((s,i)=>s+i.q*i.pr,0);
+ const pool=live.filter(p=>clsOf(p.id)=='C'&&p.pr>0&&stockOf(p)>0).sort((a,b)=>stockOf(b)-stockOf(a)).slice(0,8);
+ box.innerHTML=`<div class="abcAl info">前台目前使用：<b>${PROMO.ab?'你發布的 ABC 分級（'+new Date(PROMO.ts).toLocaleString('zh-TW')+'）':'預設分級（依商品歷史銷量估算）'}</b>。累積足夠訂單後，按下「套用」讓前台改用真實銷售分級，建議每月更新一次。<div class="row" style="margin-top:8px"><button class="btn" data-pp="pub">📌 套用目前 ABC 分級到前台</button><button class="btn alt" data-pp="reset">還原預設分級</button></div></div>
+ <div class="abcTiles"><div><span class="abc A">A</span> <b>${n.A}</b> 項<div class="meta">⭐ 主力推薦：不打折，當作滿額門檻</div></div><div><span class="abc B">B</span> <b>${n.B}</b> 項<div class="meta">👍 人氣搭檔：搭配主力享折扣</div></div><div><span class="abc C">C</span> <b>${n.C}</b> 項<div class="meta">🎁 超值福利：贈品／加價購／多件免費</div></div></div>
+ <div class="pgrid">
+ ${rule('gift','🎁','買 A 送 C（滿額贈）','購物車內 A 類商品（不含加價購）合計達門檻，自動贈送 1 件 C 類商品，優先送同寵物、庫存最多的品項，客人可在購物車換品項。贈品不計入 ABC 營收。',[['min','A 類滿','元'],['cap','贈品單價上限','元']])}
+ ${rule('addon','🛒','買 A 加價購 C','A 類滿額後，C 類商品可用折扣價加購，等於讓客人用小額換回購理由。',[['min','A 類滿','元'],['off','折扣','%'],['max','每單最多','件']])}
+ ${rule('pair','👍','A＋B 搭配折扣','同單有 A 類時，B 類商品享折扣，把 B 的銷量與客單價推上去，培養升級成 A。',[['off','折扣','%'],['max','每單最多','件']])}
+ ${rule('multi','🧺','C 類多件免費','同單 C 類商品每湊 N 件，最便宜的一件免費，適合清庫存。',[['n','每','件'] ])}
+ </div>
+ <div class="abcTiles"><div><b>${po.length}</b> 筆<div class="meta">使用行銷優惠的訂單（占全部 ${ORD.length?(po.length/ORD.length*100).toFixed(0):0}%）</div></div><div><b>${money(pd)}</b><div class="meta">折扣讓利</div></div><div><b>${gq}</b> 件<div class="meta">贈品送出，原價 ${money(gv)}</div></div><div><b>${aq}</b> 件<div class="meta">加價購，營收 ${money(ar)}</div></div></div>
+ <p class="meta"><b>目前贈品／加價購池（C 類，有庫存）：</b>${pool.length?pool.map(p=>esc(p.n)+'（'+PETS[p.pet].n+'，庫存 '+stockOf(p)+'）').join('、'):'沒有可用的 C 類庫存，贈品與加價購不會出現。'}</p>
+ <details><summary><b>📖 ABC 行銷策略手冊（點開看完整說明）</b></summary>
+ <div class="abcAl info"><b>A 主力（約 20% 商品、貢獻約 80% 營收）</b>｜角色：流量與利潤來源。<br>做法：不打折、保安全庫存；用「滿額門檻」帶動客單價；主推定期購 95 折鎖定回購；贈品與加價購都以「買 A」為前提。<br>追蹤：缺貨率、定期購占比、客單價、是否達免運 $1,200。</div>
+ <div class="abcAl info"><b>B 人氣（次主力）</b>｜角色：升級候選。<br>做法：與 A 同單享搭配折扣，提高連帶率；銷量高但單價低的做加量包或組合價，往 A 類爬。<br>追蹤：連帶率、每月晉升 A 的商品數。</div>
+ <div class="abcAl info"><b>C 長尾（貢獻低或無銷售）</b>｜角色：消化庫存、創造試用與回購理由。<br>做法：當贈品與加價購，讓客人先試再回購；多件免費清庫存；連續無銷售且庫存高者縮減進貨或下架。<br>追蹤：C 類庫存天數、收到贈品後 30 天回購率。</div>
+ <div class="abcAl info"><b>操作提醒</b>：①贈品單價上限要低於毛利，先算成本再調門檻；②贈品不計入 ABC，避免 C 類被誤判；③分級每月重算一次並按「套用」；④贈品用完庫存會自動停送；⑤想反過來「買 C 送 A」不建議，會直接侵蝕主力利潤。</div></details>`}
+document.addEventListener('click',e=>{const t=e.target.closest('button');if(!t)return;if(t.dataset.ao)addAO(+t.dataset.ao);
+ if(t.dataset.pp=='pub'){const A=abcCalc();if(!A.tot){toast('還沒有訂單可分析，先沿用預設分級');return}const m={};A.arr.forEach(x=>{if(!x.p.gone)m[x.p.id]=x.cls});PROMO.ab=m;PROMO.ts=Date.now();saveCatalog();renderGrid();renderCart();renderPromo(true);toast('已套用目前的 ABC 分級')}
+ if(t.dataset.pp=='reset'){PROMO.ab=null;PROMO.ts=0;saveCatalog();renderGrid();renderCart();renderPromo(true);toast('已還原預設分級')}});
+document.addEventListener('change',e=>{const g=e.target.closest('#giftSel');if(g){GP=+g.value;renderCart();return}const t=e.target.closest('[data-pr]');if(!t)return;const[k,f]=t.dataset.pr.split('.');
+ if(t.type=='checkbox')PROMO.r[k][f]=t.checked;else{const v=Math.round(+t.value);if(!(v>=1)||(f=='off'&&v>90)||(k=='multi'&&v<2)){toast(f=='off'?'折扣請輸入 1–90':'請輸入有效數字');renderPromo(true);return}PROMO.r[k][f]=v}
+ saveCatalog();renderCart();renderGrid();renderPromo(true);toast('行銷策略已更新')});
 const trialInCart=()=>cart.filter(c=>isTrial(c.id)).reduce((a,c)=>a+c.q,0);
 async function myOrders(){const m=SESS&&me();if(!m)return[];const l=lget().filter(o=>o.member==m.email);
  if(DB&&UID){try{const s=await DB.doc('orders/'+UID).get();if(s.exists)(s.data().list||[]).forEach(o=>{if(o.member==m.email&&!l.some(x=>x.id==o.id))l.push(o)})}catch(e){}}return l}
@@ -646,7 +703,7 @@ async function rvSubmit(){const m=me(),t=$('#rvT').value.trim();if(!m)return;if(
  const r={pid:cur.id,s:+$('#rvS').value,t,name:m.name,ts:Date.now(),buyer:lget().some(o=>o.member==m.email&&o.items.some(i=>i.id==cur.id))};
  let ok=false;try{if(DB&&UID){const ref=DB.doc('reviews/'+UID);let l=[];try{const s=await ref.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(r);await ref.set({list:l});ok=true}}catch(e){}
  if(!ok){const l=lrget();l.push(r);lrset(l)}mergeRv();toast('已送出評論')}
-function applyCatalog(c){(c.extra||[]).forEach(x=>{if(!P.some(p=>p.id==x.id))P.push(x)});const off=c.off||[],pr=c.price||{};P.forEach(p=>{p.off=off.includes(p.id);p.pr=pr[p.id]!=null?pr[p.id]:p.pr0;p.st=(c.stock||{})[p.id]!=null?c.stock[p.id]:null})}
+function applyCatalog(c){if(c.promo){PROMO.ab=c.promo.ab||null;PROMO.ts=c.promo.ts||0;for(const k in(c.promo.r||{}))Object.assign(PROMO.r[k]||(PROMO.r[k]={}),c.promo.r[k])}(c.extra||[]).forEach(x=>{if(!P.some(p=>p.id==x.id))P.push(x)});const off=c.off||[],pr=c.price||{};P.forEach(p=>{p.off=off.includes(p.id);p.pr=pr[p.id]!=null?pr[p.id]:p.pr0;p.st=(c.stock||{})[p.id]!=null?c.stock[p.id]:null})}
 async function loadCatalog(){let c=null;try{if(DB){const s=await DB.doc('catalog/state').get();if(s.exists)c=s.data()}}catch(e){}
  if(!c){try{c=JSON.parse(localStorage.getItem('mj_cat')||'null')}catch(e){}}
  if(c)applyCatalog(c);await loadImgs();renderTrial();renderGrid();renderMgr();renderCart()}
@@ -658,9 +715,9 @@ async function loadImgs(){let done=false;
  try{const M=window.MEOW_IMGS||{};P.forEach(p=>{if(!p.img&&M[p.id])p.img=M[p.id]})}catch(e){}}
 async function saveImg(p){try{if(DB&&OWNER){const r=DB.doc('productimgs/'+p.id);if(p.img)await r.set({img:p.img});else await r.delete()}else localStorage.setItem(IK,JSON.stringify(imgMap()))}catch(e){toast('圖片儲存失敗，可能是容量不足');return false}return true}
 const shrink=f=>new Promise((ok,no)=>{const r=new FileReader();r.onerror=no;r.onload=()=>{const im=new Image();im.onerror=no;im.onload=()=>{const S=480,k=Math.min(1,S/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(im,0,0,c.width,c.height);ok(c.toDataURL('image/jpeg',.78))};im.src=r.result};r.readAsDataURL(f)});
-async function saveCatalog(){const c={off:P.filter(p=>p.off).map(p=>p.id),price:Object.fromEntries(P.filter(p=>p.pr!=p.pr0).map(p=>[p.id,p.pr])),stock:Object.fromEntries(P.filter(p=>p.st!=null).map(p=>[p.id,p.st])),extra:P.filter(p=>p.id>=1000).map(({img,...o})=>o)};
+async function saveCatalog(){const c={off:P.filter(p=>p.off).map(p=>p.id),price:Object.fromEntries(P.filter(p=>p.pr!=p.pr0).map(p=>[p.id,p.pr])),stock:Object.fromEntries(P.filter(p=>p.st!=null).map(p=>[p.id,p.st])),extra:P.filter(p=>p.id>=1000).map(({img,...o})=>o),promo:PROMO};
  try{if(DB&&OWNER)await DB.doc('catalog/state').set(c);else localStorage.setItem('mj_cat',JSON.stringify(c))}catch(e){toast('儲存失敗')}}
-function renderMgr(){const t=$('#prodT');if(!t)return;try{renderAbc()}catch(e){}{const a=P.filter(p=>!p.off),lo=a.filter(p=>stockOf(p)>0&&stockOf(p)<=LOW),ou=a.filter(p=>stockOf(p)<=0),n=$('#stkNote');if(n)n.innerHTML=(lo.length||ou.length)?`<span class='stk low' style='margin:0'>低庫存 ${lo.length} 項</span> <span class='stk out'>已售完 ${ou.length} 項</span>　庫存 ${LOW} 件以下會在前台標示「僅剩 N 件」。`:'目前沒有低庫存商品。'}t.innerHTML=P.map(p=>`<tr><td>${esc(p.n)}</td><td><div class='mimg'>${p.img?`<img src='${p.img}' alt=''>`:''}<label>${p.img?'更換':'上傳'}<input type='file' accept='image/*' data-img='${p.id}'></label>${p.img?`<button class='chip' data-imgx='${p.id}'>移除</button>`:''}</div></td><td>${PETS[p.pet].n}</td><td><input class='fi' type='number' min='0' value='${p.pr}' data-pp='${p.id}' style='width:90px'></td><td><input class='fi' type='number' min='0' value='${stockOf(p)}' data-stk='${p.id}' style='width:70px'>${stTag(p)}</td><td><button class='chip${p.off?'':' on'}' data-tg='${p.id}'>${p.off?'已下架':'上架中'}</button></td></tr>`).join('')}
+function renderMgr(){const t=$('#prodT');if(!t)return;try{renderAbc()}catch(e){}try{renderPromo()}catch(e){}{const a=P.filter(p=>!p.off),lo=a.filter(p=>stockOf(p)>0&&stockOf(p)<=LOW),ou=a.filter(p=>stockOf(p)<=0),n=$('#stkNote');if(n)n.innerHTML=(lo.length||ou.length)?`<span class='stk low' style='margin:0'>低庫存 ${lo.length} 項</span> <span class='stk out'>已售完 ${ou.length} 項</span>　庫存 ${LOW} 件以下會在前台標示「僅剩 N 件」。`:'目前沒有低庫存商品。'}t.innerHTML=P.map(p=>`<tr><td>${esc(p.n)}</td><td><div class='mimg'>${p.img?`<img src='${p.img}' alt=''>`:''}<label>${p.img?'更換':'上傳'}<input type='file' accept='image/*' data-img='${p.id}'></label>${p.img?`<button class='chip' data-imgx='${p.id}'>移除</button>`:''}</div></td><td>${PETS[p.pet].n}</td><td><input class='fi' type='number' min='0' value='${p.pr}' data-pp='${p.id}' style='width:90px'></td><td><input class='fi' type='number' min='0' value='${stockOf(p)}' data-stk='${p.id}' style='width:70px'>${stTag(p)}</td><td><button class='chip${p.off?'':' on'}' data-tg='${p.id}'>${p.off?'已下架':'上架中'}</button></td></tr>`).join('')}
 function initSeller(){
  $('#npPet').innerHTML=Object.entries(PETS).map(([k,v])=>`<option value='${k}'>${v.e} ${v.n}</option>`).join('');
  $('#npC').innerHTML=Object.entries(CAT).map(([k,n])=>`<option value='${k}'>${n}</option>`).join('');
@@ -677,14 +734,14 @@ function initSeller(){
   if(await saveImg(p)){renderGrid();renderMgr();if(cur&&cur.id==p.id)renderDetail();toast('商品圖已更新')}else{p.img=null;renderMgr()}});
  document.addEventListener('change',e=>{const k=e.target.closest('input[data-stk]');if(!k)return;const p=P.find(x=>x.id==k.dataset.stk),v=Math.round(+k.value);if(!(v>=0)){toast('庫存請輸入 0 以上的數字');renderMgr();return}p.st=v+(SOLD[p.id]||0);saveCatalog();renderGrid();renderDetail();renderMgr();toast('庫存已更新')});
  document.addEventListener('change',e=>{const i=e.target.closest('input[data-pp]');if(!i)return;const p=P.find(x=>x.id==i.dataset.pp),v=+i.value;if(i.value!==''&&v>=0){p.pr=v;saveCatalog();renderGrid();renderDetail();renderCart();toast('價格已更新')}})}
-function totals(){const sub=cart.reduce((s,c)=>{const p=P.find(x=>x.id==c.id);return s+p.pr*c.q*(c.type=='定期購（寄倉）'?.95:1)},0);const ship=sub==0||sub>=1200?0:120,d=sub?disc:0;return{sub:Math.round(sub),ship,d,total:Math.max(0,Math.round(sub-d+ship))}}
+function totals(){const K=calc(),net=K.raw-K.pd,ship=K.raw==0||net>=1200?0:120,d=K.raw?disc:0;return{sub:Math.round(K.raw),pd:Math.round(K.pd),ship,d,total:Math.max(0,Math.round(net-d+ship))}}
 function openCk(){if(!cart.length){toast('請先加入商品');return}if(SB&&!UID){toast('請先登入會員再結帳');$('#mb').hidden=false;return}{const T=totals().total;$('#ckSum').textContent=`${cart.reduce((a,c)=>a+c.q,0)} 件商品，${T==0?'免費（免付款、免運費），請填寫運送資料':'應付 '+money(T)}`;$('#ckPay').hidden=T==0}const m=SESS&&me();if(m){if(!$('#ckName').value)$('#ckName').value=m.rname||m.name;if(!$('#ckTel').value)$('#ckTel').value=m.tel||'';if(!$('#ckAddr').value)$('#ckAddr').value=m.addr||''}$('#ckForm').hidden=false;$('#ckDone').hidden=true;$('#payBox').hidden=true;$('#ckDone h2').textContent='訂單已送出';$('#ck').hidden=false}
 async function submitOrder(){
  const v=id=>$('#'+id).value.trim();
- {const need={};cart.forEach(c=>need[c.id]=(need[c.id]||0)+c.q);const bad=Object.keys(need).map(id=>P.find(x=>x.id==id)).filter(p=>need[p.id]>stockOf(p))[0];if(bad){toast(`「${bad.n}」庫存只剩 ${stockOf(bad)} 件，請調整數量`);return}}
+ {const need={};cart.forEach(c=>need[c.id]=(need[c.id]||0)+c.q);calc().gifts.forEach(g=>need[g.p.id]=(need[g.p.id]||0)+g.q);const bad=Object.keys(need).map(id=>P.find(x=>x.id==id)).filter(p=>need[p.id]>stockOf(p))[0];if(bad){toast(`「${bad.n}」庫存只剩 ${stockOf(bad)} 件，請調整數量`);return}}
  if(!v('ckName')||!/^[0-9+\-\s]{8,}$/.test(v('ckTel'))||!v('ckAddr')){toast('請填寫姓名、電話與地址');return}
  if(trialInCart()){if(!SESS){toast('試吃包限會員領取，請先登入');$('#ck').hidden=true;$('#mb').hidden=false;return}const used=await trialUsed();if(used+trialInCart()>TRIAL_MAX){TU=used;renderTrial();toast(`本月試吃包額度剩 ${Math.max(0,TRIAL_MAX-used)} 份，請調整數量`);return}}
- const o={id:'A'+Date.now().toString(36).toUpperCase(),ts:Date.now(),uid:UID,member:SESS?SESS.email:null,name:v('ckName'),tel:v('ckTel'),addr:v('ckAddr'),pay:totals().total==0?'免費試吃':$('#ckPay').value,shipM:$('#ckShip').value,...totals(),status:totals().total==0||$('#ckPay').value=='貨到付款'?'待出貨':'待付款',items:cart.map(c=>{const p=P.find(x=>x.id==c.id);return{id:p.id,n:p.n,pet:p.pet,c:p.c,type:c.type,q:c.q,pr:Math.round(p.pr*(c.type=='定期購（寄倉）'?.95:1))}})};
+ const K=calc();const o={id:'A'+Date.now().toString(36).toUpperCase(),ts:Date.now(),uid:UID,member:SESS?SESS.email:null,name:v('ckName'),tel:v('ckTel'),addr:v('ckAddr'),pay:totals().total==0?'免費試吃':$('#ckPay').value,shipM:$('#ckShip').value,...totals(),status:totals().total==0||$('#ckPay').value=='貨到付款'?'待出貨':'待付款',items:orderItems(K),promo:promoInfo(K)};
  try{
   if(DB&&UID){const r=DB.doc('orders/'+UID);let l=[];try{const s=await r.get();if(s.exists)l=s.data().list||[]}catch(e){}l.push(o);try{await r.set({list:l})}catch(e){if(SB){console.error('order save failed',e);toast('訂單沒有存進資料庫：'+((e&&e.message)||'未知錯誤'));return}const q=lget();q.push(o);lset(q);ORD=q}}
   else{if(SB){toast('請先登入會員再下單，訂單才會存進資料庫');$('#ck').hidden=true;$('#mb').hidden=false;return}const l=lget();l.push(o);lset(l);ORD=l}
@@ -877,7 +934,7 @@ function renderGrid(){
  l=P.filter(p=>!p.off&&(shopPet=="all"||p.pet==shopPet)&&(shopCat=="all"||p.c==shopCat));if(filter){const[k,v]=filter.split(":");l=l.filter(p=>k=="age"?p.ages.includes(v):k=="meat"?p.meat==v:p.tags.includes(v))}
  $("#fnote").innerHTML=filter?`已篩選：${filter.split(":")[1] in TAG?TAG[filter.split(":")[1]]:AGE[filter.split(":")[1]]||filter.split(":")[1]}，共 ${l.length} 項。 <button class="chip" id="clr">清除篩選</button>`:"顯示全部商品。用上方「商品分類」兩次點擊內篩選。";
  if($("#clr"))$("#clr").onclick=()=>{filter=null;renderGrid()};
- $("#grid").innerHTML=l.length?l.map(p=>`<div class="card p"><div class="tile">${pimg(p)}</div><b>${p.n}</b><div>${p.tags.map(t=>`<span class="pill">${TAG[t]}</span>`).join("")}</div><div class="meta">${PETS[p.pet].n}｜${p.meat}｜${p.k?p.k+" kcal/100g":p.u||"配件"}</div><div class="price">${pmoney(p)} <span class='meta'>${stars(p.id)}</span>${stTag(p)}</div><div class="row"><button class="btn" data-add="${p.id}"${stockOf(p)<=0?' disabled':''}>${stockOf(p)<=0?'售完':'加入'}</button><button class="btn alt" data-view="${p.id}">看詳情</button></div></div>`).join(""):"<p>目前沒有符合的商品。</p>";
+ $("#grid").innerHTML=l.length?l.map(p=>`<div class="card p"><div class="tile">${pimg(p)}</div><b>${p.n}</b><div>${p.tags.map(t=>`<span class="pill">${TAG[t]}</span>`).join("")}</div><div class="meta">${PETS[p.pet].n}｜${p.meat}｜${p.k?p.k+" kcal/100g":p.u||"配件"}</div><div class="price">${pmoney(p)} <span class='meta'>${stars(p.id)}</span>${stTag(p)}</div>${promoTag(p)}<div class="row"><button class="btn" data-add="${p.id}"${stockOf(p)<=0?' disabled':''}>${stockOf(p)<=0?'售完':'加入'}</button><button class="btn alt" data-view="${p.id}">看詳情</button></div></div>`).join(""):"<p>目前沒有符合的商品。</p>";
 }
 function renderDetail(){
  const p=cur;
@@ -907,13 +964,19 @@ function analyzeOld(){
 function add(id,type){const p=P.find(x=>x.id==id);if(p.trial){type='試吃包';if(!SESS){toast('試吃包限會員領取，請先登入');$('#mb').hidden=false;return}if(TU+trialInCart()+1>TRIAL_MAX){toast(TU>=TRIAL_MAX?'本月試吃包額度已用完，下個月 1 號重新計算':`本月試吃包最多 ${TRIAL_MAX} 份，購物車已有 ${trialInCart()} 份`);return}}{const have=cart.filter(c=>c.id==id).reduce((a,c)=>a+c.q,0),n=stockOf(p);if(have+1>n){toast(n<=0?"這個商品已售完":`庫存只剩 ${n} 件，購物車已有 ${have} 件`);return}}type=type||(p.trial?"試吃包":"單次購");
  const f=cart.find(c=>c.id==id&&c.type==type);f?f.q++:cart.push({id,type,q:1});renderCart();toast("已加入購物車")}
 function renderCart(){
- const sub=cart.reduce((s,c)=>{const p=P.find(x=>x.id==c.id);return s+p.pr*c.q*(c.type=="定期購（寄倉）"?.95:1)},0);
+ const K=calc(),R=PROMO.r,net=K.raw-K.pd;
  $("#cnt").textContent=cart.reduce((s,c)=>s+c.q,0);
- const free=1200,left=free-sub,ship=sub==0||left<=0?0:120;
- $("#prog").textContent=!cart.length?"購物車是空的，滿 $1,200 免運。":sub==0?"免費試吃包，免運費。":left>0?`再買 ${money(left)} 享免運！`:"已達免運門檻。";
- $("#progBar").style.width=Math.min(100,sub/free*100)+"%";
- $("#items").innerHTML=cart.map((c,i)=>{const p=P.find(x=>x.id==c.id);return `<div class="item"><div><b>${p.n}</b><br><span class="pill">${c.type}</span> ${p.pr?money(p.pr*(c.type=="定期購（寄倉）"?.95:1)):"免費"}</div><div class="q"><button data-q="${i}:-1">−</button> ${c.q} <button data-q="${i}:1">＋</button></div></div>`}).join("");
- $("#sum").innerHTML=`<div class="item"><span>小計</span><span>${money(sub)}</span></div><div class="item"><span>推薦碼折扣</span><span>−${money(sub?disc:0)}</span></div><div class="item"><span>運費</span><span>${money(ship)}</span></div><div class="item"><b>合計</b><b>${money(Math.max(0,sub-(sub?disc:0)+ship))}</b></div>`;
+ const free=1200,left=free-net,ship=K.raw==0||left<=0?0:120;
+ $("#prog").textContent=!cart.length?"購物車是空的，滿 $1,200 免運。":K.raw==0?"免費試吃包，免運費。":left>0?`再買 ${money(left)} 享免運！`:"已達免運門檻。";
+ $("#progBar").style.width=Math.min(100,net/free*100)+"%";
+ $("#items").innerHTML=K.L.map(l=>{const u=(l.u*l.q-l.d)/l.q;return `<div class="item"><div><b>${esc(l.p.n)}</b><br><span class="pill">${l.c.type}${l.c.type=="加價購"&&l.bad?"（未達門檻，原價）":""}</span> ${l.p.pr?(l.d?`<s class="meta">${money(l.u)}</s> `:"")+money(u):"免費"}</div><div class="q"><button data-q="${l.i}:-1">−</button> ${l.q} <button data-q="${l.i}:1">＋</button></div></div>`}).join("")
+ +K.gifts.map(g=>`<div class="item"><div><b>🎁 ${esc(g.p.n)}</b><br><span class="pill">滿額贈</span> 免費 <s class="meta">${money(g.p.pr)}</s>${K.sel.length>1?`<br><select id="giftSel" class="fi" style="margin-top:4px">${K.sel.slice(0,8).map(p=>`<option value="${p.id}"${p.id==g.p.id?" selected":""}>${esc(p.n)}</option>`).join("")}</select>`:""}</div><div class="q">×${g.q}</div></div>`).join("");
+ const h=[];if(K.raw>0){
+  if(R.gift.on&&K.sel.length)h.push(K.gifts.length?`🎁 已達 ${money(R.gift.min)} 門檻，免費贈送「${esc(K.pick.n)}」`:`🎁 再買 ${money(R.gift.min-K.A)}「⭐主力推薦」商品，免費送「${esc(K.sel[0].n)}」`);
+  if(R.addon.on){if(K.A>=R.addon.min){if(K.aoLeft>0&&K.ao.length)h.push(`🛒 加價購再省 ${R.addon.off}%（還可加購 ${K.aoLeft} 件）：`+K.ao.slice(0,4).map(p=>`<button class="chip" data-ao="${p.id}">＋${esc(p.n)} ${money(p.pr*(100-R.addon.off)/100)}</button>`).join(""))}else h.push(`🛒 買「⭐主力推薦」滿 ${money(R.addon.min)}，可用 ${R.addon.off}% off 加購超值福利商品`)}
+  if(R.multi.on){const n=K.cu%R.multi.n;if(K.cu>0&&n)h.push(`🎁 再加 ${R.multi.n-n} 件「超值福利」商品，最便宜的一件免費`)}}
+ $("#promoBox").innerHTML=h.map(x=>`<div class="abcAl info">${x}</div>`).join("");
+ $("#sum").innerHTML=`<div class="item"><span>小計</span><span>${money(K.raw)}</span></div>${K.pd?`<div class="item"><span>行銷優惠（${K.tg.join("、")}）</span><span>−${money(K.pd)}</span></div>`:""}<div class="item"><span>推薦碼折扣</span><span>−${money(K.raw?disc:0)}</span></div><div class="item"><span>運費</span><span>${money(ship)}</span></div><div class="item"><b>合計</b><b>${money(Math.max(0,net-(K.raw?disc:0)+ship))}</b></div>`;
 }
 document.addEventListener("click",e=>{
  const t=e.target.closest("button");if(!t)return;
